@@ -1,6 +1,6 @@
-import { EntityDefinition, EntityInstance } from "@/schema/entity";
+import { EntityDefinition, EntityInstance } from "../schema/entity";
 
-export const userCasePerson = {
+export const personEntity = {
   type: "entity",
   name: "Person",
   fields: [
@@ -9,6 +9,12 @@ export const userCasePerson = {
       type: "scalar",
       value: "string",
     },
+    {
+      type: "link",
+      name: "parent",
+      target: "Person",
+      muli: false,
+    },
   ],
   constraints: [
     {
@@ -16,9 +22,16 @@ export const userCasePerson = {
       field: "full_name",
     },
   ],
-} as const satisfies EntityDefinition;
+} satisfies EntityDefinition;
 
-const instance: EntityInstance<typeof userCasePerson> = {
+export type PersonInstance = EntityInstance<typeof personEntity>;
+
+const instance: PersonInstance = {
   __type: "Person",
   full_name: "John Doe",
+  parent: {
+    type: "link",
+    entity: "Person",
+    target_primary_keys: ["tim cook"],
+  },
 };

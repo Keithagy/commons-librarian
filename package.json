@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "bash scripts/build.sh",
-    "dev": "bash scripts/dev.sh",
+    "dev": "env $(cat .env) bash scripts/dev.sh",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint-fix": "eslint . --fix --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },

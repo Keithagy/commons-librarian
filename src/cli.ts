@@ -24,7 +24,8 @@ async function main() {
   console.log(
     chalk.yellow(`Vault size: ${Object.keys(vault.files).length} files`),
   ); // markdown files in nested folders just get flattened; you don't get a representation of the nesting here
-  console.log(vault.files);
+
+  const validEntityDefinitions = Object.values(vault.files).forEach;
 }
 
 // NOTE: entity definitions -- primary keys should be reasonably difficult for llm to mangle

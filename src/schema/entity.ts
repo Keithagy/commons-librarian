@@ -1,7 +1,7 @@
 import z from "zod";
 import { zConstraintDefinition } from "./constraints";
 import { FieldInstance, zFieldDefinition } from "./field";
-import { IsAny } from "@/helpers/utility-types";
+import { IsAny } from "../helpers/utility-types";
 
 export const zEntityName = z
   .string()

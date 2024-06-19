@@ -1,5 +1,5 @@
-import { NotImplementError } from "@/errors";
-import { EntityDefinition } from "@/schema/entity";
+import { NotImplementError } from "../errors";
+import { EntityDefinition } from "../schema/entity";
 import { VaultPage } from "obsidian-vault-parser";
 import { EntitySlice } from "./types";
 

@@ -1,4 +1,4 @@
-import { NotImplementError } from "@/errors";
+import { NotImplementError } from "../errors";
 import { EntitySlice, KnowledgeGraph } from "./types";
 
 export async function retrieveEntity(

@@ -1,4 +1,4 @@
-import { NotImplementError } from "@/errors";
+import { NotImplementError } from "../errors";
 import { EntitySlice } from "./types";
 
 export async function mergeEntity(

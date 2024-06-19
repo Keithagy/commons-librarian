@@ -1,5 +1,5 @@
 import z from "zod";
-import { zEntityDefintion, zEntityName } from "./entity";
+import { zEntityName } from "./entity";
 
 export const zFieldName = z
   .string()
@@ -22,3 +22,16 @@ export const zFieldScalar = z.object({
 
 export const zFieldDefinition = z.union([zFieldLink, zFieldScalar]);
 export type FieldDefinition = z.infer<typeof zFieldDefinition>;
+
+// @eslint-ignore-next-statement
+export type FieldInstance<T> = T extends z.infer<typeof zFieldLink>
+  ? T
+  : T extends z.infer<typeof zFieldScalar>
+  ? T extends { value: "string" }
+    ? string
+    : T extends { value: "number" }
+    ? number
+    : T extends { value: "boolean" }
+    ? boolean
+    : never
+  : never;

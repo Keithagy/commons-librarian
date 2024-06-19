@@ -1,6 +1,6 @@
-import { EntityDefinition, zEntityDefintion } from "@/schema/entity";
+import { EntityDefinition, EntityInstance } from "@/schema/entity";
 
-export const userCasePerson = zEntityDefintion.parse({
+export const userCasePerson = {
   type: "entity",
   name: "Person",
   fields: [
@@ -16,4 +16,9 @@ export const userCasePerson = zEntityDefintion.parse({
       field: "full_name",
     },
   ],
-} satisfies EntityDefinition);
+} as const satisfies EntityDefinition;
+
+const instance: EntityInstance<typeof userCasePerson> = {
+  __type: "Person",
+  full_name: "John Doe",
+};

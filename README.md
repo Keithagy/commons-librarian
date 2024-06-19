@@ -5,12 +5,10 @@
 
 - install nodejs mentioned in package.json
 - install yarn
-
-exec: `yarn install`
-
+- exec: `yarn install`
+- initialize .env file by looking at .env.example
 
 ## run
-
 
 Point yarn dev to the right `.ts`-file:
 

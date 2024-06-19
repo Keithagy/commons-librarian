@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import * as process from "node:process";
 
 const prefix = process.env.LLM_PROVIDER ?? "OPENAI";
 const LLM_CONFIG = {
@@ -43,7 +44,7 @@ export async function llmCompletion(
   const chatCompletion = openai.beta.chat.completions.stream(arg);
 
   for await (const completion of chatCompletion) {
-    console.log(completion.choices[0].delta.content);
+    process.stdout.write(completion.choices[0].delta.content ?? "");
   }
 
   const final = await chatCompletion.finalChatCompletion();

@@ -1,7 +1,6 @@
 {
   "name": "commons-librarian",
   "version": "0.0.1",
-  "main": "dist/cli.js",
   "type": "module",
   "repository": "git@github.com:proj-astralship/commons-librarian.git",
   "author": "",
@@ -11,14 +10,15 @@
     "node": "20"
   },
   "scripts": {
-    "build": "esbuild src/cli.ts --bundle --loader:.ts=ts --platform=node \"--external:@babel/preset-typescript/*\" --external:node-pty --outfile=build/cli.cjs --sourcemap",
-    "dev": "yarn -s build && node build/cli.cjs",
+    "build": "bash scripts/build.sh",
+    "dev": "bash scripts/dev.sh",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint-fix": "eslint . --fix --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@types/yargs": "^17.0.32",
     "chalk": "^5.3.0",
+    "lodash": "^4.17.21",
     "obsidian-vault-parser": "git+https://github.com/Davidiusdadi/obsidian-vault-parser.git#main",
     "openai": "^4.51.0",
     "yargs": "^17.7.2",
@@ -26,14 +26,15 @@
     "zod-to-ts": "^1.2.0"
   },
   "devDependencies": {
-    "esbuild": "^0.21.5",
-    "typescript": "^5.4.5",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
+    "esbuild": "^0.21.5",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-no-relative-import-paths": "^1.5.3",
     "eslint-plugin-prettier": "^5.0.1",
-    "prettier": "3.0.3"
+    "prettier": "3.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

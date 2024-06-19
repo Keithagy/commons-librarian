@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { VaultPage, readVault } from "obsidian-vault-parser";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
+import { EntityDefinition, EntityInstance } from "@/schema/entity";
 
 /*
  * Provides a CLI which handles the ingestion of some target obsidian vault.
@@ -34,11 +35,9 @@ async function main() {
 // - substring comparisons / trimming
 // - semantic proximity? (this is hard and has broader implications in other steps too, such as querying step)
 
-// TODO: Placeholder type definitions
-type EntityDefinition = string;
-type EntityInstance = object;
-type EntitySlice = Partial<EntityInstance>;
-type KnowledgeGraph = object;
+type EntitySlice = Partial<EntityInstance<any>> & Pick<EntityInstance<any>, "__type">;
+type KnowledgeGraph = Set<EntitySlice>;
+
 interface Context {
   validEntities: Set<EntityDefinition>; // defined statically
 }
@@ -66,12 +65,13 @@ async function initializeEntities(
   throw new NotImplementError();
 }
 
-async function populateEntity(
+export async function populateEntity(
   ctx: Context,
   entityToPopulate: EntitySlice,
   file: VaultPage,
 ): Promise<EntitySlice> {
   // NOTE: returns a copy of `entityToPopulate` with populated fields
+
   throw new NotImplementError();
 }
 
@@ -84,6 +84,7 @@ async function retrieveEntity(
   // should expect this function to make use of definition-specific type narrowing
   throw new NotImplementError();
 }
+
 async function mergeEntity(
   ctx: Context,
   incoming: ReturnType<typeof populateEntity>,
@@ -101,6 +102,7 @@ async function linkEntityIntoLocalGraph(
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `localGraph` in place
 }
+
 async function mergeLocalGraphIntoGLobalGraph(
   ctx: Context,
   localGraph: KnowledgeGraph,
@@ -109,9 +111,11 @@ async function mergeLocalGraphIntoGLobalGraph(
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `globalGraph` in place
 }
+
 async function persist(newGlobalGraph: KnowledgeGraph): Promise<void> {
   // NOTE: this is just the commit step
 }
+
 (async () => {
   await main();
 })();

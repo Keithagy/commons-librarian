@@ -20,7 +20,7 @@ async function main() {
   }
 
   const vault = await readVault(inputVaultFilePath);
-  vault.console.log(chalk.yellow(`Successfully read vault: ${vault.path}`));
+  console.log(chalk.yellow(`Successfully read vault: ${vault.path}`));
   console.log(
     chalk.yellow(`Vault size: ${Object.keys(vault.files).length} files`),
   ); // markdown files in nested folders just get flattened; you don't get a representation of the nesting here
@@ -42,11 +42,19 @@ interface Context {
   validEntities: Set<EntityDefinition>; // defined statically
 }
 
+class NotImplementError extends Error {
+  constructor() {
+    super("Not implemented");
+  }
+}
+
 async function determineFileContainsEntityType(
   ctx: Context,
   file: VaultPage,
   entDef: EntityDefinition,
-): Promise<boolean> {}
+): Promise<boolean> {
+    throw new NotImplementError();
+}
 
 async function initializeEntities(
   ctx: Context,
@@ -54,30 +62,34 @@ async function initializeEntities(
   entDef: EntityDefinition,
 ): Promise<EntitySlice[]> {
   // NOTE: this pipeline step prefills primary key of nodes, per zod schema def
+    throw new NotImplementError();
 }
 
 async function populateEntity(
   ctx: Context,
   entityToPopulate: EntitySlice,
   file: VaultPage,
-): EntitySlice {
+): Promise<EntitySlice> {
   // NOTE: returns a copy of `entityToPopulate` with populated fields
+    throw new NotImplementError();
 }
 
 async function retrieveEntity(
   ctx: Context,
   searchTarget: EntitySlice,
-): EntitySlice | null {
+): Promise<EntitySlice | null> {
   // NOTE: we are passing in entire EntitySlice given that we don't know yet which fields we'll need to triangulate against
   // e.g. alias keys?
   // should expect this function to make use of definition-specific type narrowing
+    throw new NotImplementError();
 }
 async function mergeEntity(
   ctx: Context,
   incoming: ReturnType<typeof populateEntity>,
   existing: EntitySlice,
-): EntitySlice {
+): Promise<EntitySlice> {
   // TODO: identify specific merging strategy
+    throw new NotImplementError();
 }
 
 async function linkEntityIntoLocalGraph(
@@ -87,6 +99,7 @@ async function linkEntityIntoLocalGraph(
 ): Promise<void> {
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `localGraph` in place
+
 }
 async function mergeLocalGraphIntoGLobalGraph(
   ctx: Context,

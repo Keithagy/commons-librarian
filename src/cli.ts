@@ -54,7 +54,7 @@ async function determineFileContainsEntityType(
   file: VaultPage,
   entDef: EntityDefinition,
 ): Promise<boolean> {
-    throw new NotImplementError();
+  throw new NotImplementError();
 }
 
 async function initializeEntities(
@@ -63,7 +63,7 @@ async function initializeEntities(
   entDef: EntityDefinition,
 ): Promise<EntitySlice[]> {
   // NOTE: this pipeline step prefills primary key of nodes, per zod schema def
-    throw new NotImplementError();
+  throw new NotImplementError();
 }
 
 async function populateEntity(
@@ -72,7 +72,7 @@ async function populateEntity(
   file: VaultPage,
 ): Promise<EntitySlice> {
   // NOTE: returns a copy of `entityToPopulate` with populated fields
-    throw new NotImplementError();
+  throw new NotImplementError();
 }
 
 async function retrieveEntity(
@@ -82,7 +82,7 @@ async function retrieveEntity(
   // NOTE: we are passing in entire EntitySlice given that we don't know yet which fields we'll need to triangulate against
   // e.g. alias keys?
   // should expect this function to make use of definition-specific type narrowing
-    throw new NotImplementError();
+  throw new NotImplementError();
 }
 async function mergeEntity(
   ctx: Context,
@@ -90,7 +90,7 @@ async function mergeEntity(
   existing: EntitySlice,
 ): Promise<EntitySlice> {
   // TODO: identify specific merging strategy
-    throw new NotImplementError();
+  throw new NotImplementError();
 }
 
 async function linkEntityIntoLocalGraph(
@@ -100,7 +100,6 @@ async function linkEntityIntoLocalGraph(
 ): Promise<void> {
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `localGraph` in place
-
 }
 async function mergeLocalGraphIntoGLobalGraph(
   ctx: Context,
@@ -116,4 +115,3 @@ async function persist(newGlobalGraph: KnowledgeGraph): Promise<void> {
 (async () => {
   await main();
 })();
-

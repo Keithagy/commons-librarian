@@ -3,6 +3,9 @@ import { VaultPage, readVault } from "obsidian-vault-parser";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
 import { EntityDefinition, EntityInstance } from "@/schema/entity";
+import {populateEntity} from "@/workflow/populateEntity"
+import {Context, EntitySlice, KnowledgeGraph} from "@/workflow/types"
+import {NotImplementError} from "@/errors"
 
 /*
  * Provides a CLI which handles the ingestion of some target obsidian vault.
@@ -35,18 +38,8 @@ async function main() {
 // - substring comparisons / trimming
 // - semantic proximity? (this is hard and has broader implications in other steps too, such as querying step)
 
-type EntitySlice = Partial<EntityInstance<any>> & Pick<EntityInstance<any>, "__type">;
-type KnowledgeGraph = Set<EntitySlice>;
 
-interface Context {
-  validEntities: Set<EntityDefinition>; // defined statically
-}
 
-class NotImplementError extends Error {
-  constructor() {
-    super("Not implemented");
-  }
-}
 
 async function determineFileContainsEntityType(
   ctx: Context,
@@ -62,16 +55,6 @@ async function initializeEntities(
   entDef: EntityDefinition,
 ): Promise<EntitySlice[]> {
   // NOTE: this pipeline step prefills primary key of nodes, per zod schema def
-  throw new NotImplementError();
-}
-
-export async function populateEntity(
-  ctx: Context,
-  entityToPopulate: EntitySlice,
-  file: VaultPage,
-): Promise<EntitySlice> {
-  // NOTE: returns a copy of `entityToPopulate` with populated fields
-
   throw new NotImplementError();
 }
 

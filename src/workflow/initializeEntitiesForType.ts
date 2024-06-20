@@ -8,5 +8,6 @@ export async function initializeEntitiesForType(
   entDef: EntityDefinition,
 ): Promise<EntitySlice[]> {
   // NOTE: this pipeline step prefills primary key of nodes, per zod schema def
+  // TODO: this depends on agreement on how lookup keys will be handled within zod schemas
   throw new NotImplementError();
 }

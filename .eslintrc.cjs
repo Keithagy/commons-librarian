@@ -25,17 +25,13 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  plugins: ["@typescript-eslint", "prettier", "no-relative-import-paths"],
+  plugins: ["@typescript-eslint", "prettier"],
   rules: {
     "prettier/prettier": [
       "error",
       {
         endOfLine: "auto",
       },
-    ],
-    "no-relative-import-paths/no-relative-import-paths": [
-      "warn",
-      { allowSameFolder: true, rootDir: "./src", prefix: "@" },
     ],
   },
   root: true,

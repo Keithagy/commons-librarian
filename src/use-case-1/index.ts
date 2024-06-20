@@ -13,7 +13,7 @@ export const personEntity = {
       type: "link",
       name: "parent",
       target: "Person",
-      muli: false,
+      multi: false,
     },
   ],
   constraints: [

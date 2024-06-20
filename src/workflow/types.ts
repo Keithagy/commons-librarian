@@ -1,10 +1,8 @@
 import { EntityDefinition, EntityInstance } from "../schema/entity";
 import { Vault } from "obsidian-vault-parser";
+import { EntitySlice } from "./EntitySlice";
 
-export type EntitySlice<T extends EntityDefinition = any> = Partial<
-  EntityInstance<T>
-> &
-  Pick<EntityInstance<T>, "__type">;
+export * from "./EntitySlice";
 
 export type KnowledgeGraph = Set<EntitySlice<EntityDefinition>>;
 

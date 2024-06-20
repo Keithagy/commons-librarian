@@ -1,8 +1,8 @@
 ---
-lol: "[[target]]"
-obj:
-    next: "b"
-    next2: "c"
+type: "Person"
+children:
+    next: "[[child a]]"
+    next2: "[[child B]]"
 list: 
   - "a"
   - "b"

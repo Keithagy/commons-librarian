@@ -1,9 +1,10 @@
 import { llmCompletion } from "src/llm/completion";
 import { EntityDefinition } from "../schema/entity";
-import { BadLLMResponse } from "../errors";
+import { BadLLMResponse, NotImplementError } from "../errors";
 import { VaultPage } from "obsidian-vault-parser";
 import { printNode, zodToTs } from "zod-to-ts";
 import { z } from "zod";
+import { FieldDefinition } from "src/schema/field";
 
 export async function determineIfEntityTypePresent(
   file: VaultPage,
@@ -15,15 +16,44 @@ export async function determineIfEntityTypePresent(
   }
   // TODO: chunking consideration
 
-  // TODO: determine parsing logic
-  const zod_scalar_parser = z.object({});
+  const scalarFields = entityDefinition.fields.filter(
+    (f) => f.type === "scalar",
+  ) as Extract<FieldDefinition, { type: "scalar" }>[];
+  let zod_scalar_parser = z.object({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let zfield: z.ZodType<any, any, any>;
+  scalarFields.forEach((field) => {
+    switch (field.value) {
+      case "string":
+        zfield = z.string();
+        break;
+      case "number":
+        zfield = z.number();
+        break;
+      case "boolean":
+        zfield = z.boolean();
+        break;
+      default:
+        throw new NotImplementError(
+          `Field value ${field.value} not implemented`,
+        );
+    }
+    zfield = zfield.describe(
+      "First and/or last name of person, or part thereof",
+    );
+
+    zod_scalar_parser = zod_scalar_parser.extend({
+      [field.name]: zfield,
+    });
+  });
   const tsSchema = printNode(zodToTs(zod_scalar_parser).node);
+  console.log("schema", tsSchema);
   const rest = await llmCompletion({
     messages: [
       {
         role: "system",
         content: `
-Your role is to determine if the file content below describes at least one instance of the following entity called ${entityDefinition.name}, represented by the following schema:
+Your role is to determine if the file content below describes at least one ${entityDefinition.name}, represented by the following schema:
 \`\`\`ts
 ${tsSchema}
 \`\`\`
@@ -34,9 +64,9 @@ ${file.content}
 \`\`\`
 
 You are to respond ONLY with one of the following values:
-- \`true\` if the file describes at least one instance of entity ${entityDefinition.name}
-- \`false\` if the file describes no such entity
-- \`null\` if unclear`,
+- true if the file describes at least one instance of entity ${entityDefinition.name}, i.e the file content contains one or more of this entity
+- false if the file describes no such entity
+- null if unclear`,
       },
     ],
   });
@@ -59,6 +89,7 @@ You are to respond ONLY with one of the following values:
       `LLM did not provide a valid (boolean) response when checking if entity ${entityDefinition.name} was present in the file at ${file.path}`,
     );
   }
+  console.info("LLM valid response", response);
   console.info(
     `Entity ${entityDefinition.name} ${
       (response && "exists") || "does not exist"

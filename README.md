@@ -15,4 +15,6 @@ Point yarn dev to the right `.ts`-file:
 ```bash
 yarn run dev src/use-case-1/testPopulateEntity.ts --inspect-brk
 yarn run dev src/cli.ts --- -i vault/pile -o vault/out
+yarn run dev src/cli.ts --inspect-brk --- -i vault/pile -o vault/out
+yarn run dev src/cli.ts --inspect --- -i vault/pile -o vault/out
 ```

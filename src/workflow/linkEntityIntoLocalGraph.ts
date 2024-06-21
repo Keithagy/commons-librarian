@@ -1,3 +1,4 @@
+import { NotImplementError } from "src/errors";
 import { EntitySlice, KnowledgeGraph } from "./types";
 
 export async function linkEntityIntoLocalGraph(
@@ -6,4 +7,6 @@ export async function linkEntityIntoLocalGraph(
 ): Promise<void> {
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `localGraph` in place
+
+  throw new NotImplementError();
 }

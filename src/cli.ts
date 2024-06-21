@@ -3,7 +3,7 @@ import { readVault } from "obsidian-vault-parser";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
 import { EntityDefinition, EntityInstanceType } from "./schema/entity";
-import { EntitySlice, KnowledgeGraph } from "./workflow/types";
+import { Context, EntitySlice, KnowledgeGraph } from "./workflow/types";
 import { personEntity as userCasePerson } from "./use-case-1";
 import { determineIfEntityTypePresent } from "./workflow/determineIfEntityTypePresent";
 import { initializeEntitiesForType } from "./workflow/initializeEntitiesForType";
@@ -65,8 +65,20 @@ async function main() {
   const validEntityDefinitions: Record<EntityInstanceType, EntityDefinition> = {
     [userCasePerson.name]: userCasePerson,
   };
-  Object.values(inputVault.files).forEach(async (incomingDocument) => {
-    const existingVault = await readVault(outputVaultFilePath);
+
+  const existingVault = await readVault(outputVaultFilePath);
+  const ctx: Context = {
+    validEntities: new Set(Object.values(validEntityDefinitions)),
+    existingVault,
+  };
+
+  const existingGlobalGraph = parseExistingGlobalGraphFromVault(
+    existingVault,
+    validEntityDefinitions,
+  );
+
+  //Object.values(inputVault.files).forEach(async (incomingDocument) => {
+  for (const incomingDocument of Object.values(inputVault.files)) {
     console.log(
       chalk.yellow(`Successfully read output vault: ${existingVault.path}`),
     );
@@ -75,57 +87,48 @@ async function main() {
         `Vault size: ${Object.keys(existingVault.files).length} files`,
       ),
     );
-    const existingGlobalGraph = parseExistingGlobalGraphFromVault(
-      existingVault,
+
+    const entityTypesMentionedInDoc = Object.values(
       validEntityDefinitions,
-    );
-    const entityTypesMentionedInDoc = Array.from(
-      Object.values(validEntityDefinitions),
     ).filter(async (entityType) => {
       // TODO: refactor to use Promise.all
       return await determineIfEntityTypePresent(incomingDocument, entityType);
     });
 
-    const newEntitiesFromDocument: EntitySlice[] = await Promise.all(
-      (
-        await Promise.all(
-          entityTypesMentionedInDoc.map((entityType) =>
-            initializeEntitiesForType(incomingDocument, entityType).then(
-              (initializedEntities) =>
-                initializedEntities.map((initialized) =>
-                  populateEntity(
-                    {
-                      validEntities: new Set(
-                        Object.values(validEntityDefinitions),
-                      ),
-                      existingVault,
-                    },
-                    initialized,
-                    incomingDocument,
-                  ),
-                ),
-            ),
-          ),
-        )
-      ).flatMap((slices) => slices),
-    );
-    const mergedEntities = await Promise.all(
-      newEntitiesFromDocument.map((newEntity) =>
-        retrieveEntity(newEntity, existingGlobalGraph).then(
-          (maybeExistingEntity: EntitySlice | null): Promise<EntitySlice> =>
-            maybeExistingEntity === null
-              ? new Promise(() => newEntity)
-              : mergeEntity(newEntity, maybeExistingEntity),
-        ),
-      ),
-    );
+    const mergedEntities: EntitySlice[] = [];
+
+    for (const entityType of entityTypesMentionedInDoc) {
+      const initializedEntities = await initializeEntitiesForType(
+        incomingDocument,
+        entityType,
+      );
+
+      for (const initialized of initializedEntities) {
+        const populated = await populateEntity(
+          ctx,
+          initialized,
+          incomingDocument,
+        );
+
+        const maybeExistingEntity = await retrieveEntity(
+          populated,
+          existingGlobalGraph,
+        );
+
+        const mergedEntity =
+          maybeExistingEntity === null
+            ? populated
+            : await mergeEntity(populated, maybeExistingEntity);
+
+        mergedEntities.push(mergedEntity);
+      }
+    }
 
     const localGraph: KnowledgeGraph = new Set();
-    await Promise.all(
-      mergedEntities.map((entity) =>
-        linkEntityIntoLocalGraph(entity, localGraph),
-      ),
-    );
+    for (const entity of mergedEntities) {
+      await linkEntityIntoLocalGraph(entity, localGraph);
+    }
+
     const newGlobalGraph = await mergeLocalGraphIntoGlobalGraph(
       localGraph,
       existingGlobalGraph,
@@ -133,7 +136,7 @@ async function main() {
 
     // NOTE: Current implementation commits once per file. Should we consider batch commits?
     await persist(newGlobalGraph, existingVault);
-  });
+  }
 }
 
 // NOTE: entity definitions -- primary keys should be reasonably difficult for llm to mangle
@@ -144,4 +147,5 @@ async function main() {
 
 (async () => {
   await main();
+  console.log("done!");
 })();

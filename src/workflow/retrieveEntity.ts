@@ -8,5 +8,6 @@ export async function retrieveEntity(
   // NOTE: we are passing in entire EntitySlice given that we don't know yet which fields we'll need to triangulate against
   // e.g. alias keys?
   // should expect this function to make use of definition-specific type narrowing
-  throw new NotImplementError();
+  console.warn("retrieveEntity not implemented yet");
+  return null; // TODO: implement
 }

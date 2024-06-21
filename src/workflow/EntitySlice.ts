@@ -8,7 +8,6 @@ export type EntitySliceFields<T extends EntityDefinition = any> = Partial<
 class EntityBase<T extends EntityDefinition> {
   private constructor(private _entity: EntityDefinition) {}
 
-
   get definition() {
     return this._entity;
   }

@@ -4,7 +4,7 @@ import { FieldDefinition, FieldInstance, zFieldDefinition } from "./field";
 import { IsAny } from "../helpers/utility-types";
 import { EntityNotFoundError, NotImplementError } from "src/errors";
 import { VaultPage } from "obsidian-vault-parser";
-import { printNode, zodToTs } from "zod-to-ts";
+import { EntitySlice } from "src/workflow/types";
 
 export const zEntityName = z
   .string()
@@ -45,7 +45,7 @@ export function retrieveEntityDefinition(
 export function parseEntity<T extends EntityDefinition>(
   file: VaultPage,
   expected: T,
-): EntityInstance<T> {
+): EntitySlice<T> {
   const scalarFields = expected.fields.filter(
     (f) => f.type === "scalar",
   ) as Extract<FieldDefinition, { type: "scalar" }>[];
@@ -72,7 +72,7 @@ export function parseEntity<T extends EntityDefinition>(
       [field.name]: zfield,
     });
   });
-  const result = zod_scalar_parser.parse(file.frontMatter) as EntityInstance<T>;
+  const result = zod_scalar_parser.parse(file.frontMatter) as EntitySlice<T>;
   console.log("Parsed data:", result);
   return result;
 }

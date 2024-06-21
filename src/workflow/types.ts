@@ -1,4 +1,4 @@
-import { EntityDefinition, EntityInstance } from "../schema/entity";
+import { EntityDefinition } from "../schema/entity";
 import { Vault } from "obsidian-vault-parser";
 import { EntitySlice } from "./EntitySlice";
 

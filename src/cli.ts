@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { readVault } from "obsidian-vault-parser";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
-import { EntityDefinition } from "./schema/entity";
+import { EntityDefinition, EntityInstanceType } from "./schema/entity";
 import { EntitySlice, KnowledgeGraph } from "./workflow/types";
 import { personEntity as userCasePerson } from "./use-case-1";
 import { determineIfEntityTypePresent } from "./workflow/determineIfEntityTypePresent";
@@ -62,9 +62,9 @@ async function main() {
   }
 
   // TODO: userCasePerson shouldn't be directly imported! this should be parameterized
-  const validEntityDefinitions: Set<EntityDefinition> = new Set([
-    userCasePerson,
-  ]);
+  const validEntityDefinitions: Record<EntityInstanceType, EntityDefinition> = {
+    [userCasePerson.name]: userCasePerson,
+  };
   Object.values(inputVault.files).forEach(async (incomingDocument) => {
     const existingVault = await readVault(outputVaultFilePath);
     console.log(
@@ -75,16 +75,16 @@ async function main() {
         `Vault size: ${Object.keys(existingVault.files).length} files`,
       ),
     );
-    const existingGlobalGraph =
-      parseExistingGlobalGraphFromVault(existingVault);
+    const existingGlobalGraph = parseExistingGlobalGraphFromVault(
+      existingVault,
+      validEntityDefinitions,
+    );
     const entityTypesMentionedInDoc = Array.from(
-      validEntityDefinitions.entries(),
-    )
-      .map(([entityType]) => entityType)
-      .filter(async (entityType) => {
-        // TODO: refactor to use Promise.all
-        return await determineIfEntityTypePresent(incomingDocument, entityType);
-      });
+      Object.values(validEntityDefinitions),
+    ).filter(async (entityType) => {
+      // TODO: refactor to use Promise.all
+      return await determineIfEntityTypePresent(incomingDocument, entityType);
+    });
 
     const newEntitiesFromDocument: EntitySlice[] = await Promise.all(
       (
@@ -94,7 +94,12 @@ async function main() {
               (initializedEntities) =>
                 initializedEntities.map((initialized) =>
                   populateEntity(
-                    { validEntities: validEntityDefinitions, existingVault },
+                    {
+                      validEntities: new Set(
+                        Object.values(validEntityDefinitions),
+                      ),
+                      existingVault,
+                    },
                     initialized,
                     incomingDocument,
                   ),

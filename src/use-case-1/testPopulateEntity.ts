@@ -13,12 +13,11 @@ import { Context, EntitySlice, createEntitySlice } from "../workflow/types";
   //   full_name: "John Doe",
   // } satisfies EntitySlice<typeof personEntity>;
 
-  const personInstance: EntitySlice<typeof personEntity> = createEntitySlice(
-    personEntity,
-    {},
-  );
+  const personInstance = createEntitySlice<typeof personEntity>(personEntity, {
+    full_name: "John Doe",
+  });
 
   await populateEntity(ctx, personInstance, {
-    content: "John Doe, age 33 is the father of Tim Cook",
+    content: "John Doe, age 33 is the father of Tim Cook, age 66",
   } as VaultPage);
 })();

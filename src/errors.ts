@@ -10,6 +10,8 @@ export class EntityNotFoundError extends Error {
   }
 }
 
+export class InvalidEntityDefinition extends Error {}
+
 export class BadLLMResponse extends Error {
   constructor(msg: string) {
     super(msg);

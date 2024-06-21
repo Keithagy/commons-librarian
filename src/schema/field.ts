@@ -1,24 +1,30 @@
-import z from "zod";
+import z, { optional } from "zod";
 import { zEntityName } from "./entity";
+import { option } from "yargs";
 
 export const zFieldName = z
   .string()
   .min(3)
   .regex(/[a-zA-Z0-9_]*$/i);
 
-export const zFieldLink = z.object({
+export const zFieldBase = z.object({
+  comment: z.string().optional(),
+  optional: z.boolean().optional(),
+});
+
+export const zFieldLink = zFieldBase.extend({
   type: z.literal("link"),
   name: zFieldName,
   target: zEntityName,
   multi: z.boolean(),
 });
 
-export const zFieldScalar = z.object({
+export const zFieldScalar = zFieldBase.extend({
   type: z.literal("scalar"),
   name: zFieldName,
   // starting out overly strict
   value: z.enum(["string", "number", "boolean"]),
-  parser: z.function().args(z.any()).returns(z.any()).optional(),
+  //parser: z.function().args(z.any()).returns(z.any()).optional(),
 });
 
 export const zFieldDefinition = z.union([zFieldLink, zFieldScalar]);

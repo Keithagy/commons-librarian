@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import * as process from "node:process";
+import chalk from "chalk";
 
 const prefix = process.env.LLM_PROVIDER ?? "OPENAI";
 const LLM_CONFIG = {
@@ -34,6 +35,8 @@ export async function llmCompletion(
     );
   }
 
+  logLLMQuery(args);
+
   const arg: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
     ...args,
     model: args.model ?? LLM_CONFIG.API_MODEL,
@@ -49,5 +52,19 @@ export async function llmCompletion(
 
   const final = await chatCompletion.finalChatCompletion();
 
+  //console.log(chalk.green(final.choices[0].message.content));
+
   return final;
+}
+
+// using chalk to colorize the output
+function logLLMQuery(args: ChatCompletionCreateParamsNonStreaming) {
+  // iterate messages
+  args.messages.forEach((message) => {
+    if (message.role === "system") {
+      console.log(chalk.cyan(message.content));
+    } else {
+      console.log(chalk.blue(message.content));
+    }
+  });
 }

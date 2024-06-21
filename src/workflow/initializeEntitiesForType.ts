@@ -2,7 +2,6 @@ import { BadLLMResponse } from "../errors";
 import {
   EntityDefinition,
   getPrimaryKeySchemaOfEntityDefinition,
-  getSchemaOfEntityDefinition,
 } from "../schema/entity";
 import { VaultPage } from "obsidian-vault-parser";
 import { EntitySlice } from "./types";
@@ -15,7 +14,7 @@ export async function initializeEntitiesForType(
 ): Promise<EntitySlice[]> {
   // NOTE: in this step we are just filling out primary keys,
   // though we leave this context out of our prompt to avoid overwhelming the (likely smaller) LLM.
-  const primaryKeyOnlySchema = getPrimaryKeySchemaOfEntityDefinition(entDef); // TODO: replace with function to extract only schema of primary keys
+  const primaryKeyOnlySchema = getPrimaryKeySchemaOfEntityDefinition(entDef);
   const pkOnlySchemaSerialized = printNode(zodToTs(primaryKeyOnlySchema).node);
   const systemPrompt = `
 This is a schema definition for the entity ${entDef.name}:

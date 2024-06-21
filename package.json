@@ -26,6 +26,7 @@
     "zod-to-ts": "^1.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.5",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
     "esbuild": "^0.21.5",
@@ -33,7 +34,6 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
     "prettier": "3.0.3",
-    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
 }

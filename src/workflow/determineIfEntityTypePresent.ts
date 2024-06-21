@@ -1,5 +1,8 @@
 import { llmCompletion } from "src/llm/completion";
-import { EntityDefinition } from "../schema/entity";
+import {
+  EntityDefinition,
+  getSchemaOfEntityDefinition,
+} from "../schema/entity";
 import { BadLLMResponse, NotImplementError } from "../errors";
 import { VaultPage } from "obsidian-vault-parser";
 import { printNode, zodToTs } from "zod-to-ts";
@@ -16,37 +19,8 @@ export async function determineIfEntityTypePresent(
   }
   // TODO: chunking consideration
 
-  const scalarFields = entityDefinition.fields.filter(
-    (f) => f.type === "scalar",
-  ) as Extract<FieldDefinition, { type: "scalar" }>[];
-  let zod_scalar_parser = z.object({});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let zfield: z.ZodType<any, any, any>;
-  scalarFields.forEach((field) => {
-    switch (field.value) {
-      case "string":
-        zfield = z.string();
-        break;
-      case "number":
-        zfield = z.number();
-        break;
-      case "boolean":
-        zfield = z.boolean();
-        break;
-      default:
-        throw new NotImplementError(
-          `Field value ${field.value} not implemented`,
-        );
-    }
-    zfield = zfield.describe(
-      "First and/or last name of person, or part thereof",
-    );
-
-    zod_scalar_parser = zod_scalar_parser.extend({
-      [field.name]: zfield,
-    });
-  });
-  const tsSchema = printNode(zodToTs(zod_scalar_parser).node);
+  const schema = getSchemaOfEntityDefinition(entityDefinition);
+  const tsSchema = printNode(zodToTs(schema).node);
   console.log("schema", tsSchema);
   const rest = await llmCompletion({
     messages: [

@@ -46,7 +46,15 @@ export function parseEntity<T extends EntityDefinition>(
   file: VaultPage,
   expected: T,
 ): EntitySlice<T> {
-  const scalarFields = expected.fields.filter(
+  const expectedSchema = getSchemaOfEntityDefinition(expected);
+  const result = expectedSchema.parse(file.frontMatter) as EntitySlice<T>;
+  console.log("Parsed data:", result);
+  return result;
+}
+export function getSchemaOfEntityDefinition(
+  entityDefinition: EntityDefinition,
+): ReturnType<typeof z.object> {
+  const scalarFields = entityDefinition.fields.filter(
     (f) => f.type === "scalar",
   ) as Extract<FieldDefinition, { type: "scalar" }>[];
   let zod_scalar_parser = z.object({});
@@ -72,7 +80,5 @@ export function parseEntity<T extends EntityDefinition>(
       [field.name]: zfield,
     });
   });
-  const result = zod_scalar_parser.parse(file.frontMatter) as EntitySlice<T>;
-  console.log("Parsed data:", result);
-  return result;
+  return zod_scalar_parser;
 }

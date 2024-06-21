@@ -19,6 +19,6 @@ import { Context, EntitySlice, createEntitySlice } from "../workflow/types";
   );
 
   await populateEntity(ctx, personInstance, {
-    content: "John Doe is the father of Tim Cook",
+    content: "John Doe, age 33 is the father of Tim Cook",
   } as VaultPage);
 })();

@@ -25,7 +25,7 @@ export async function populateEntity(
     throw new EntityNotFoundError(einst.__type);
   }
 
-  const scalarFields = entity.fields.filter(
+  const scalarFields = einst.getFields("non-primary").filter(
     (f) => f.type === "scalar",
   ) as Extract<FieldDefinition, { type: "scalar" }>[];
 

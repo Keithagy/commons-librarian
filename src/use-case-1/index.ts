@@ -10,6 +10,11 @@ export const personEntity = {
       value: "string",
     },
     {
+      name: "age",
+      type: "scalar",
+      value: "number",
+    },
+    {
       type: "link",
       name: "parent",
       target: "Person",

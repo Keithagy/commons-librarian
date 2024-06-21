@@ -72,6 +72,5 @@ The user will provide the raw data from which to extract the metadata.
   }
   const response_json = JSON.parse(response_json_text);
   const valid_json: any = schema.parse(response_json);
-  console.log("valid_json", valid_json);
-  return einst; // TODO: need to actually fill fields into `einst`
+  return Object.assign(einst, valid_json); // FIXME: remove pk from valid_json
 }

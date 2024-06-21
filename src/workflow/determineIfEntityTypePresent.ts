@@ -63,7 +63,7 @@ You are to respond ONLY with one of the following values:
       `LLM did not provide a valid (boolean) response when checking if entity ${entityDefinition.name} was present in the file at ${file.path}`,
     );
   }
-  console.info("LLM valid response", response);
+
   console.info(
     `Entity ${entityDefinition.name} ${
       (response && "exists") || "does not exist"

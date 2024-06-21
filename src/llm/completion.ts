@@ -47,8 +47,11 @@ export async function llmCompletion(
   const chatCompletion = openai.beta.chat.completions.stream(arg);
 
   for await (const completion of chatCompletion) {
-    process.stdout.write(completion.choices[0].delta.content ?? "");
+    process.stdout.write(
+      chalk.magenta(completion.choices[0].delta.content ?? ""),
+    );
   }
+  process.stdout.write("\n");
 
   const final = await chatCompletion.finalChatCompletion();
 

@@ -94,7 +94,7 @@ export function getSchemaOfEntityDefinition(
 
 export function getPrimaryKeySchemaOfEntityDefinition(
   entityDefinition: EntityDefinition,
-): ReturnType<typeof z.object> {
+): z.AnyZodObject {
   const primaryKeyFieldNames = entityDefinition.constraints
     .filter((c) => c.type === "primary-key")
     .map((pk) => pk.field);

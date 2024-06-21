@@ -2,7 +2,11 @@ import z from "zod";
 import { zConstraintDefinition } from "./constraints";
 import { FieldDefinition, FieldInstance, zFieldDefinition } from "./field";
 import { IsAny } from "../helpers/utility-types";
-import { EntityNotFoundError, NotImplementError } from "src/errors";
+import {
+  EntityNotFoundError,
+  InvalidEntityDefinition,
+  NotImplementError,
+} from "src/errors";
 import { VaultPage } from "obsidian-vault-parser";
 import { EntitySlice } from "src/workflow/types";
 
@@ -86,4 +90,46 @@ export function getSchemaOfEntityDefinition(
     });
   });
   return zod_scalar_parser;
+}
+
+export function getPrimaryKeySchemaOfEntityDefinition(
+  entityDefinition: EntityDefinition,
+): ReturnType<typeof z.object> {
+  const primaryKeyFieldNames = entityDefinition.constraints
+    .filter((c) => c.type === "primary-key")
+    .map((pk) => pk.field);
+
+  let schema = z.object({});
+  for (const pkFieldName of primaryKeyFieldNames) {
+    const pkField = entityDefinition.fields.find((f) => f.name === pkFieldName);
+    if (pkField === undefined) {
+      throw new InvalidEntityDefinition(
+        `This entity definition specifies ${pkFieldName} as primary key, but it is not found in fields`,
+      );
+    }
+    if (pkField.type !== "scalar") {
+      throw new InvalidEntityDefinition(
+        `This entity definition specifies ${pkFieldName} as primary key, but it is not a scalar field`,
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let zField: z.ZodType<any, any, any>;
+    switch (pkField.value) {
+      case "string":
+        zField = z.string();
+        break;
+      case "number":
+        zField = z.number();
+        break;
+      case "boolean":
+        zField = z.boolean();
+        break;
+      default:
+        throw new NotImplementError(
+          `Field value ${pkField.value} not implemented`,
+        );
+    }
+    schema = schema.extend({ [pkField.name]: zField });
+  }
+  return schema;
 }

@@ -15,15 +15,13 @@ export async function populateEntity(
   einst: EntitySlice,
   file: VaultPage,
 ): Promise<EntitySlice> {
-  const entity = [...ctx.validEntities].find((e) => e?.name === einst.__type);
-
-  if (!entity) {
-    throw new EntityNotFoundError(einst.__type);
-  }
-
-  const scalarFields = entity.fields.filter(
-    (f) => f.type === "scalar",
-  ) as Extract<FieldDefinition, { type: "scalar" }>[];
+  const entity = einst.definition;
+  const scalarFields = einst
+    .getFields("non-primary")
+    .filter((f) => f.type === "scalar") as Extract<
+    FieldDefinition,
+    { type: "scalar" }
+  >[];
   if (scalarFields.length <= 0) {
     return einst;
   }
@@ -55,10 +53,10 @@ ${tsSchema}
 
 The user will provide the raw data from which to extract the metadata.
 `,
-        },
-        {
-          role: "user",
-          content: file.content!,
+      },
+      {
+        role: "user",
+        content: file.content!,
       },
     ],
     response_format: {

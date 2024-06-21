@@ -76,6 +76,11 @@ export function getSchemaOfEntityDefinition(
           `Field value ${field.value} not implemented`,
         );
     }
+
+    if (field.comment) {
+      zfield = zfield.describe(field.comment);
+    }
+
     zod_scalar_parser = zod_scalar_parser.extend({
       [field.name]: zfield,
     });

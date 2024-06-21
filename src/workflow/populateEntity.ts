@@ -55,10 +55,10 @@ ${tsSchema}
 
 The user will provide the raw data from which to extract the metadata.
 `,
-        },
-        {
-          role: "user",
-          content: file.content!,
+      },
+      {
+        role: "user",
+        content: file.content!,
       },
     ],
     response_format: {

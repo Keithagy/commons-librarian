@@ -9,7 +9,13 @@ export async function persist(
 ): Promise<void> {
   // NOTE: this is just the commit step
 
-  console.log(JSON.stringify(newGlobalGraph.map(n => n.asInstance()), null, 2));
+  console.log(
+    JSON.stringify(
+      newGlobalGraph.map((n) => n.asInstance()),
+      null,
+      2,
+    ),
+  );
   console.log("persist not implemented yet");
 
   for (const entity of newGlobalGraph) {
@@ -20,7 +26,7 @@ export async function persist(
 
     for (const link of entity.getFields("link")) {
       if (file[link.name]) {
-        file[link.name] = (file[link.name] as string[])?.map(v => `[[${v}]]`);
+        file[link.name] = (file[link.name] as string[])?.map((v) => `[[${v}]]`);
       }
     }
 
@@ -29,6 +35,6 @@ export async function persist(
     const content = `---\n${JSON.stringify(file, null, 2)}\n---\n`;
 
     // wirte file to out_path
-    writeFileSync(out_path, content)
+    writeFileSync(out_path, content);
   }
 }

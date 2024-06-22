@@ -81,18 +81,18 @@ class EntityBase<T extends EntityDefinition> {
     }
   }
 
-  getPrimaryKey() {
+  getPrimaryKey(): { key: string; value: string } {
     const $this = this as any as EntitySlice<T>;
     const name = this.getPrimaryDef().name as keyof EntitySlice<T>;
     return {
-      key: name,
-      value: $this[name],
+      key: name as string,
+      value: $this[name] as string,
     };
   }
 
   asInstance(): EntityInstance<T> {
-    const $this = this as any as EntitySliceFields<T>
-    const obj:  Record<string, any> = {};
+    const $this = this as any as EntitySliceFields<T>;
+    const obj: Record<string, any> = {};
 
     for (const field of this.getFields("all")) {
       const field_name = field.name as keyof EntitySliceFields<T>;

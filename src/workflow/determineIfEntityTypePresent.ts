@@ -21,10 +21,13 @@ export async function determineIfEntityTypePresent(
   const schema = getSchemaOfEntityDefinition(entityDefinition);
   const tsSchema = printNode(zodToTs(schema).node);
 
-
   const output_schema = z.object({
     evidence: z.string().describe("short evidence that the entity is present"),
-    has_entity: z.boolean().optional().nullable().describe(`has ${entityDefinition.name}`),
+    has_entity: z
+      .boolean()
+      .optional()
+      .nullable()
+      .describe(`has ${entityDefinition.name}`),
   });
 
   const output_ts_schema = printNode(zodToTs(output_schema).node);
@@ -54,7 +57,7 @@ ${output_ts_schema}
 \`\`\`
 ${file.content}
 \`\`\``,
-      }
+      },
     ],
     response_format: {
       type: "json_object",

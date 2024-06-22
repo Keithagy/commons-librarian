@@ -78,8 +78,10 @@ ${file.content}
 
   const extracted = flattend.filter((e) => e[pk.key] === pk.value);
 
-  if(extracted.length === 0) {
-    throw new EntityNotFoundError(`Failed to populate ${entity.name} ${pk.value} `);
+  if (extracted.length === 0) {
+    throw new EntityNotFoundError(
+      `Failed to populate ${entity.name} ${pk.value} `,
+    );
   }
 
   return Object.assign(einst, extracted[0]); // FIXME: remove pk from valid_json

@@ -1,4 +1,4 @@
-import z, { optional } from "zod";
+import z, { ZodObject, optional } from "zod";
 import { zEntityName } from "./entity";
 import { option } from "yargs";
 
@@ -27,7 +27,13 @@ export const zFieldScalar = zFieldBase.extend({
   //parser: z.function().args(z.any()).returns(z.any()).optional(),
 });
 
-export const zFieldDefinition = z.union([zFieldLink, zFieldScalar]);
+export const zFieldObject = zFieldBase.extend({
+  type: z.literal("zod"),
+  name: zFieldName,
+  value: z.any(),
+});
+
+export const zFieldDefinition = z.union([zFieldLink, zFieldScalar, zFieldObject]);
 export type FieldDefinition = z.infer<typeof zFieldDefinition>;
 
 // @eslint-ignore-next-statement

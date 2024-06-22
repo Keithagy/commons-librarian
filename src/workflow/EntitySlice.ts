@@ -101,6 +101,8 @@ class EntityBase<T extends EntityDefinition> {
         obj[field_name] = $this[field_name];
       } else if (field.type === "scalar") {
         obj[field_name] = $this[field_name];
+      } else if (field.type === "zod") {
+        obj[field_name] = $this[field_name];
       } else {
         throw new NotImplementError(`Field type not implemented`);
       }

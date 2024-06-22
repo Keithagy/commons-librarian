@@ -58,37 +58,43 @@ export function parseEntity<T extends EntityDefinition>(
 export function getSchemaOfEntityDefinition(
   entityDefinition: EntityDefinition,
 ): ReturnType<typeof z.object> {
-  const scalarFields = entityDefinition.fields.filter(
-    (f) => f.type === "scalar",
-  ) as Extract<FieldDefinition, { type: "scalar" }>[];
+
+
   let zod_scalar_parser = z.object({});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let zfield: z.ZodType<any, any, any>;
-  scalarFields.forEach((field) => {
-    switch (field.value) {
-      case "string":
-        zfield = z.string();
-        break;
-      case "number":
-        zfield = z.number();
-        break;
-      case "boolean":
-        zfield = z.boolean();
-        break;
-      default:
-        throw new NotImplementError(
-          `Field value ${field.value} not implemented`,
-        );
-    }
 
-    if (field.comment) {
-      zfield = zfield.describe(field.comment);
-    }
+  for (const field of entityDefinition.fields) {
+    let zfield: z.ZodType<any, any, any>;
+    if (field.type === "scalar") {
+      switch (field.value) {
+        case "string":
+          zfield = z.string();
+          break;
+        case "number":
+          zfield = z.number();
+          break;
+        case "boolean":
+          zfield = z.boolean();
+          break;
+        default:
+          throw new NotImplementError(
+            `Field value not implemented`,
+          );
+      }
 
-    zod_scalar_parser = zod_scalar_parser.extend({
-      [field.name]: zfield,
-    });
-  });
+      if (field.comment) {
+        zfield = zfield.describe(field.comment);
+      }
+
+      zod_scalar_parser = zod_scalar_parser.extend({
+        [field.name]: zfield,
+      });
+    } else if (field.type === "zod") {
+      zod_scalar_parser = zod_scalar_parser.extend({
+        [field.name]: field.value,
+      });
+    }
+  }
+
   return zod_scalar_parser;
 }
 
@@ -126,7 +132,7 @@ export function getPrimaryKeySchemaOfEntityDefinition(
         break;
       default:
         throw new NotImplementError(
-          `Field value ${pkField.value} not implemented`,
+          `Field type not implemented`,
         );
     }
     schema = schema.extend({ [pkField.name]: zField });

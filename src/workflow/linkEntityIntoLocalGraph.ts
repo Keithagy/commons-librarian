@@ -41,7 +41,7 @@ export async function linkEntityIntoLocalGraph(
           ),
         confidence: z.enum(["no_brainer", "seems_alright", "hard_to_know"]),
         [vertict_key]: z.boolean(),
-        [`${bPK.value} has ${link.name}_${aPK.value}`]: z.boolean(),
+        [`${bPK.value} has ${link.name} ${aPK.value}`]: z.boolean(),
       });
 
       const pkOnlySchemaSerialized = printNode(zodToTs(zResponse).node);

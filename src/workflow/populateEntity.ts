@@ -20,9 +20,9 @@ export async function populateEntity(
   const entity = einst.definition;
   const scalarFields = einst
     .getFields("non-primary")
-    .filter((f) => f.type === "scalar") as Extract<
+    .filter((f) => f.type === "scalar" || f.type === 'zod') as Extract<
     FieldDefinition,
-    { type: "scalar" }
+    { type: "scalar" } | { type: "zod" }
   >[];
   if (scalarFields.length <= 0) {
     return einst;
@@ -60,7 +60,10 @@ ${tsSchema}
         content: `## input data
 \`\`\`
 ${file.content}
-\`\`\``,
+\`\`\`
+
+Now give me the JSON metadata for this:
+`,
       },
     ],
     response_format: {

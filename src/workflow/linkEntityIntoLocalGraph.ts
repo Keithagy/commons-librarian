@@ -31,7 +31,7 @@ export async function linkEntityIntoLocalGraph(
       const aPK = incoming.getPrimaryKey();
       const bPK = linkDst.getPrimaryKey();
 
-      const vertict_key = `${aPK.value} has ${link.name}_${bPK.value}`;
+      const vertict_key = `${aPK.value} has ${link.name} ${bPK.value}`;
 
       const zResponse = z.object({
         reasoning: z
@@ -85,11 +85,7 @@ ${page.content!}
       );
 
       if (valid_resp[vertict_key] === true) {
-        incoming[link.name] = {
-          type: "link",
-          entity: linkDst.__type,
-          target_primary_keys: [bPK.value as badany],
-        };
+        incoming[link.name] = [bPK.value as badany]
       }
     }
   }

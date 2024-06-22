@@ -1,6 +1,7 @@
 import { InvalidEntityDefinition, NotImplementError } from "src/errors";
 import { EntityDefinition, EntityInstance } from "src/schema/entity";
 import type { IsAny } from "../helpers/utility-types";
+import { FieldDefinition } from "src/schema/field";
 
 type GetFieldsOptions = "non-primary" | "primary" | "all" | "link";
 
@@ -87,6 +88,25 @@ class EntityBase<T extends EntityDefinition> {
       key: name,
       value: $this[name],
     };
+  }
+
+  asInstance(): EntityInstance<T> {
+    const $this = this as any as EntitySliceFields<T>
+    const obj:  Record<string, any> = {};
+
+    for (const field of this.getFields("all")) {
+      const field_name = field.name as keyof EntitySliceFields<T>;
+
+      if (field.type === "link") {
+        obj[field_name] = $this[field_name];
+      } else if (field.type === "scalar") {
+        obj[field_name] = $this[field_name];
+      } else {
+        throw new NotImplementError(`Field type not implemented`);
+      }
+    }
+
+    return obj as EntityInstance<T>;
   }
 }
 

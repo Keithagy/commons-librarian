@@ -18,3 +18,12 @@ yarn run dev src/cli.ts --- -i vault/pile -o vault/out
 yarn run dev src/cli.ts --inspect-brk --- -i vault/pile -o vault/out
 yarn run dev src/cli.ts --inspect --- -i vault/pile -o vault/out
 ```
+
+
+## LLM considerations
+
+## https://mistral.ai/technology/#pricing
+
+```
+MISTRAL_API_MODEL=open-mixtral-8x7b
+```

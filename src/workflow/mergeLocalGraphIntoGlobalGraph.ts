@@ -9,6 +9,6 @@ export async function mergeLocalGraphIntoGlobalGraph(
   // NOTE: returns a copy of `globalGraph` with `localGraph` merged in
   console.log("mergeLocalGraphIntoGlobalGraph not implemented yet");
 
-  console.log(JSON.stringify(localGraph, null, 2));
-  return globalGraph;
+  //console.log(JSON.stringify(localGraph.map( n => n.asInstance()), null, 2));
+  return localGraph;
 }

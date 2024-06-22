@@ -32,7 +32,7 @@ export type FieldDefinition = z.infer<typeof zFieldDefinition>;
 
 // @eslint-ignore-next-statement
 export type FieldInstance<T> = T extends z.infer<typeof zFieldLink>
-  ? { type: "link"; entity: T["target"]; target_primary_keys: string[] } // muli: false links will also be represented as an array
+  ? string[] // muli: false links will also be represented as an array
   : T extends z.infer<typeof zFieldScalar>
   ? T extends { value: "string" }
     ? string

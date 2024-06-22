@@ -6,4 +6,6 @@ export async function persist(
   ouputVault: Vault,
 ): Promise<void> {
   // NOTE: this is just the commit step
+
+  console.log("persist not implemented yet");
 }

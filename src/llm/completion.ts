@@ -62,7 +62,7 @@ export async function llmCompletion(
 
 // using chalk to colorize the output
 function logLLMQuery(args: ChatCompletionCreateParamsNonStreaming) {
-  // iterate messages
+  console.log(chalk.green("Query:"));
   args.messages.forEach((message) => {
     if (message.role === "system") {
       console.log(chalk.cyan(message.content));

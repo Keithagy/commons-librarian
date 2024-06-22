@@ -88,16 +88,6 @@ class EntityBase<T extends EntityDefinition> {
       value: $this[name],
     };
   }
-
-  asInstance() {
-    for (const f of this._entity.fields) {
-      if (!(f.name in this)) {
-        throw new InvalidEntityDefinition(
-          `Entity ${this._entity.name} missing field ${f.name}`,
-        );
-      }
-    }
-  }
 }
 
 export type EntitySlice<T extends EntityDefinition = any> = Partial<

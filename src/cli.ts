@@ -124,9 +124,9 @@ async function main() {
       }
     }
 
-    const localGraph: KnowledgeGraph = new Set();
+    const localGraph: KnowledgeGraph = [...mergedEntities];
     for (const entity of mergedEntities) {
-      await linkEntityIntoLocalGraph(entity, localGraph);
+      await linkEntityIntoLocalGraph(entity, localGraph, incomingDocument);
     }
 
     const newGlobalGraph = await mergeLocalGraphIntoGlobalGraph(

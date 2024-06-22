@@ -4,7 +4,7 @@ import { EntitySlice } from "./EntitySlice";
 
 export * from "./EntitySlice";
 
-export type KnowledgeGraph = Set<EntitySlice<EntityDefinition>>;
+export type KnowledgeGraph = EntitySlice[];
 
 export interface Context {
   validEntities: Set<EntityDefinition>;

@@ -1,12 +1,18 @@
 import { InvalidEntityDefinition, NotImplementError } from "src/errors";
 import { EntityDefinition, EntityInstance } from "src/schema/entity";
+import type { IsAny } from "../helpers/utility-types";
 
-type GetFieldsOptions = "non-primary" | "primary" | "all";
+type GetFieldsOptions = "non-primary" | "primary" | "all" | "link";
 
 export type EntitySliceFields<T extends EntityDefinition = any> = Partial<
   EntityInstance<T>
 > &
   Pick<EntityInstance<T>, "__type">;
+
+// *TD*efault
+type TD<T extends EntityDefinition> = IsAny<T> extends true
+  ? EntityDefinition
+  : T;
 
 class EntityBase<T extends EntityDefinition> {
   private constructor(private _entity: EntityDefinition) {}
@@ -24,7 +30,17 @@ class EntityBase<T extends EntityDefinition> {
     return result as EntitySlice<T>;
   }
 
-  getFields(filter_by: GetFieldsOptions) {
+  getFields<F extends GetFieldsOptions>(
+    filter_by: F,
+  ): F extends "all"
+    ? TD<T>["fields"]
+    : F extends "link"
+    ? Extract<TD<T>["fields"][number], { type: "link" }>[]
+    : F extends "primary" | "non-primary"
+    ? Extract<TD<T>["fields"][number], { type: "scalar" }>[]
+    : never;
+
+  getFields<F extends GetFieldsOptions>(filter_by: F): any {
     if (filter_by === "all") {
       return this._entity.fields;
     } else if (["primary", "non-primary"].includes(filter_by)) {
@@ -35,6 +51,8 @@ class EntityBase<T extends EntityDefinition> {
           ) ?? false;
         return filter_by === "primary" ? is_primary : !is_primary;
       });
+    } else if (filter_by === "link") {
+      return this._entity.fields.filter((f) => f.type === "link");
     } else {
       throw new NotImplementError(`Filter by ${filter_by} not implemented`);
     }
@@ -69,6 +87,16 @@ class EntityBase<T extends EntityDefinition> {
       key: name,
       value: $this[name],
     };
+  }
+
+  asInstance() {
+    for (const f of this._entity.fields) {
+      if (!(f.name in this)) {
+        throw new InvalidEntityDefinition(
+          `Entity ${this._entity.name} missing field ${f.name}`,
+        );
+      }
+    }
   }
 }
 

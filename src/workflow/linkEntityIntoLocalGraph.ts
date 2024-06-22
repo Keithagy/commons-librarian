@@ -19,9 +19,6 @@ export async function linkEntityIntoLocalGraph(
     });
 
     for (const linkDst of opposites) {
-      console.log(
-        `${incoming.definition.name} -[${link.name}]-> ${linkDst.__type}`,
-      );
 
       if (linkDst === incoming) {
         // if linking to self
@@ -86,6 +83,10 @@ ${page.content!}
 
       if (valid_resp[vertict_key] === true) {
         incoming[link.name] = [bPK.value as badany];
+        console.log(`setting ${aPK.value} has ${link.name} ${bPK.value}`);
+        
+      } else {
+        console.log('not setting link')
       }
     }
   }

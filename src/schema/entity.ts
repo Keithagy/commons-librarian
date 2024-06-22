@@ -127,7 +127,7 @@ export function getSchemaOfEntityDefinition(
         [field.name]: field.value,
       });
     } else if (field.type === "link") {
-      let type = field.multi ? z.array(z.string()) : z.string();
+      let type = field.multi ? z.array(z.string()) : z.string().transform((v) => [v]);
       if (field.comment) {
         type = type.describe(field.comment);
       }

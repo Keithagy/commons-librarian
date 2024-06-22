@@ -22,8 +22,15 @@ yarn run dev src/cli.ts --inspect --- -i vault/pile -o vault/out
 
 ## LLM considerations
 
-## https://mistral.ai/technology/#pricing
+https://openai.com/api/pricing/
+https://mistral.ai/technology/#pricing
 
-```
-MISTRAL_API_MODEL=open-mixtral-8x7b
-```
+set `LLM_PROVIDER=MISTRAL` or `LLM_PROVIDER=OPENAI` (default is the latter)
+
+### mistral notes
+
+`MISTRAL_API_MODEL=open-mixtral-8x7b` or
+
+`MISTRAL_API_MODEL=open-mixtral-8x22b`
+
+

@@ -5,3 +5,5 @@ build
 dist
 coverage
 local
+vault/.obsidian
+vault/out

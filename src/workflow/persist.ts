@@ -1,16 +1,18 @@
 import { Vault } from "obsidian-vault-parser";
 import { KnowledgeGraph } from "./types";
 import { writeFileSync } from "fs";
-import { badany } from "src/helpers/utility-types";
 
 export async function persist(
   newGlobalGraph: KnowledgeGraph,
   ouputVault: Vault,
 ): Promise<void> {
-  // NOTE: this is just the commit step
-
-  console.log(JSON.stringify(newGlobalGraph.map(n => n.asInstance()), null, 2));
-  console.log("persist not implemented yet");
+  console.log(
+    JSON.stringify(
+      newGlobalGraph.map((n) => n.asInstance()),
+      null,
+      2,
+    ),
+  );
 
   for (const entity of newGlobalGraph) {
     const file = entity.asInstance();
@@ -20,7 +22,7 @@ export async function persist(
 
     for (const link of entity.getFields("link")) {
       if (file[link.name]) {
-        file[link.name] = (file[link.name] as string[])?.map(v => `[[${v}]]`);
+        file[link.name] = (file[link.name] as string[])?.map((v) => `[[${v}]]`);
       }
     }
 
@@ -29,6 +31,6 @@ export async function persist(
     const content = `---\n${JSON.stringify(file, null, 2)}\n---\n`;
 
     // wirte file to out_path
-    writeFileSync(out_path, content)
+    writeFileSync(out_path, content);
   }
 }

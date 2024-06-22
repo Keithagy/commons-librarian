@@ -46,12 +46,46 @@ export function retrieveEntityDefinition(
   return maybeEntityDefinition;
 }
 
+function clipObsidianLinkText(rawLinkText: string): string {
+  const obsidianLinkStartSeq = "[[";
+  const obsidianLinkEndSeq = "]]";
+  let normalizedLinkValue = rawLinkText;
+  // Remove leading substring
+  if (normalizedLinkValue.startsWith(obsidianLinkStartSeq)) {
+    normalizedLinkValue = normalizedLinkValue.slice(
+      obsidianLinkStartSeq.length,
+    );
+  }
+
+  // Remove trailing substring
+  if (normalizedLinkValue.endsWith(obsidianLinkEndSeq)) {
+    normalizedLinkValue = normalizedLinkValue.slice(
+      0,
+      -obsidianLinkEndSeq.length,
+    );
+  }
+
+  return normalizedLinkValue;
+}
 export function parseEntity<T extends EntityDefinition>(
   file: VaultPage,
   expected: T,
 ): EntitySlice<T> {
   const expectedSchema = getSchemaOfEntityDefinition(expected);
-  const result = expectedSchema.parse(file.frontMatter) as EntitySlice<T>;
+  const frontMatterWithLinkTextNormalized = Object.fromEntries(
+    Object.entries(file.frontMatter).map(([key, value]) => {
+      if (typeof value === "string") {
+        return [key, clipObsidianLinkText(value)];
+      }
+      if (Array.isArray(value)) {
+        return [key, value.map(clipObsidianLinkText)];
+      }
+      return [key, value];
+    }),
+  );
+  const result = expectedSchema.parse(
+    frontMatterWithLinkTextNormalized,
+  ) as EntitySlice<T>;
   console.log("Parsed data:", result);
   return result;
 }
@@ -91,6 +125,14 @@ export function getSchemaOfEntityDefinition(
     } else if (field.type === "zod") {
       zod_scalar_parser = zod_scalar_parser.extend({
         [field.name]: field.value,
+      });
+    } else if (field.type === "link") {
+      let type = field.multi ? z.array(z.string()) : z.string();
+      if (field.comment) {
+        type = type.describe(field.comment);
+      }
+      zod_scalar_parser = zod_scalar_parser.extend({
+        [field.name]: type,
       });
     }
   }

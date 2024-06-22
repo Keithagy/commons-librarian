@@ -85,7 +85,7 @@ ${page.content!}
       );
 
       if (valid_resp[vertict_key] === true) {
-        incoming[link.name] = [bPK.value as badany]
+        incoming[link.name] = [bPK.value as badany];
       }
     }
   }

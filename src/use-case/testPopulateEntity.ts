@@ -1,6 +1,6 @@
 import { populateEntity } from "../workflow/populateEntity";
 import { Vault, VaultPage } from "obsidian-vault-parser";
-import { personEntity } from "./index";
+import { personEntity } from "./1-dummy-schema";
 import { Context, EntitySlice, createEntitySlice } from "../workflow/types";
 
 (async () => {

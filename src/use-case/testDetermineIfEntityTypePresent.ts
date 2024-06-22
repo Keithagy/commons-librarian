@@ -1,5 +1,5 @@
 import { VaultPage } from "obsidian-vault-parser";
-import { personEntity } from "./index";
+import { personEntity } from "./1-dummy-schema";
 import { determineIfEntityTypePresent } from "src/workflow/determineIfEntityTypePresent";
 
 (async () => {

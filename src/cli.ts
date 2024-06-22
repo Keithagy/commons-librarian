@@ -4,7 +4,6 @@ import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
 import { EntityDefinition, EntityInstanceType } from "./schema/entity";
 import { Context, EntitySlice, KnowledgeGraph } from "./workflow/types";
-import { personEntity as userCasePerson } from "./use-case-1";
 import { determineIfEntityTypePresent } from "./workflow/determineIfEntityTypePresent";
 import { initializeEntitiesForType } from "./workflow/initializeEntitiesForType";
 import { linkEntityIntoLocalGraph } from "./workflow/linkEntityIntoLocalGraph";
@@ -29,7 +28,13 @@ async function main() {
       alias: "o",
       type: "string",
       description: "Output/existing vault filepath",
-    }).argv;
+    })
+    .option("schema", {
+      alias: "s",
+      type: "string",
+      description: "entity schema file path",
+    })
+    .argv;
 
   const inputVaultFilePath = argv.input;
   if (!inputVaultFilePath) {
@@ -62,9 +67,14 @@ async function main() {
   }
 
   // TODO: userCasePerson shouldn't be directly imported! this should be parameterized
-  const validEntityDefinitions: Record<EntityInstanceType, EntityDefinition> = {
-    [userCasePerson.name]: userCasePerson,
-  };
+  const validEntityDefinitions = {} as Record<EntityInstanceType, EntityDefinition>;
+
+  {
+    const entity_list: EntityDefinition[] = (await import(argv["schema"] as string)).default;
+    for (const entity of entity_list) {
+      validEntityDefinitions[entity.name] = entity;
+    }
+  }
 
   const existingVault = await readVault(outputVaultFilePath);
   const ctx: Context = {

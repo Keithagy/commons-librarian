@@ -32,12 +32,13 @@ export async function linkEntityIntoLocalGraph(
       const aPK = incoming.getPrimaryKey();
       const bPK = opposite.getPrimaryKey();
 
+      const vertict_key = `${aPK.value} has ${link.name}_${bPK.value}`
+
       const zResponse = z.object({
-        reasoning: z.string(),
+        reasoning: z.string().describe('reason about assertion makes sense and about relation direction'),
         confidence: z.enum(["no_brainer", "seems_alright", "hard_to_know"]),
-        vertict: z
-          .boolean()
-          .describe("true if the link is correct, false otherwise"),
+        [vertict_key]: z.boolean(),
+        [`${bPK.value} has ${link.name}_${aPK.value}`]: z.boolean()
       });
 
       const pkOnlySchemaSerialized = printNode(zodToTs(zResponse).node);
@@ -47,11 +48,13 @@ export async function linkEntityIntoLocalGraph(
           {
             role: "system",
             content: `
-Given a text you give vertict in JSON format on whether the following  cypher query would be correct or not.
+Given a text you give a response in JSON format on whether the following cypher-query would be correct or not.
 
 ## Query
 
 (a:${incoming.definition.name} {"${aPK.key}": "${aPK.value}"})-[${link.name}]->(b:${opposite.definition.name} {"${bPK.key}": "${bPK.value}"})
+
+Determine critically which relationship holds between the two entities.
 
 ## Response format
 
@@ -73,11 +76,13 @@ ${pkOnlySchemaSerialized}
         JSON.parse(resp.choices[0].message.content!),
       );
 
-      incoming[link.name] = {
-        type: "link",
-        entity: opposite.__type,
-        target_primary_keys: [bPK.value as badany],
-      };
+      if(valid_resp[vertict_key] === true) {
+        incoming[link.name] = {
+          type: "link",
+          entity: opposite.__type,
+          target_primary_keys: [bPK.value as badany],
+        };
+      }
     }
   }
 }

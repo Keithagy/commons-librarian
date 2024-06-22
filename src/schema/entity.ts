@@ -46,12 +46,46 @@ export function retrieveEntityDefinition(
   return maybeEntityDefinition;
 }
 
+function clipObsidianLinkText(rawLinkText: string): string {
+  const obsidianLinkStartSeq = "[[";
+  const obsidianLinkEndSeq = "]]";
+  let normalizedLinkValue = rawLinkText;
+  // Remove leading substring
+  if (normalizedLinkValue.startsWith(obsidianLinkStartSeq)) {
+    normalizedLinkValue = normalizedLinkValue.slice(
+      obsidianLinkStartSeq.length,
+    );
+  }
+
+  // Remove trailing substring
+  if (normalizedLinkValue.endsWith(obsidianLinkEndSeq)) {
+    normalizedLinkValue = normalizedLinkValue.slice(
+      0,
+      -obsidianLinkEndSeq.length,
+    );
+  }
+
+  return normalizedLinkValue;
+}
 export function parseEntity<T extends EntityDefinition>(
   file: VaultPage,
   expected: T,
 ): EntitySlice<T> {
   const expectedSchema = getSchemaOfEntityDefinition(expected);
-  const result = expectedSchema.parse(file.frontMatter) as EntitySlice<T>;
+  const frontMatterWithLinkTextNormalized = Object.fromEntries(
+    Object.entries(file.frontMatter).map(([key, value]) => {
+      if (typeof value === "string") {
+        return [key, clipObsidianLinkText(value)];
+      }
+      if (Array.isArray(value)) {
+        return [key, value.map(clipObsidianLinkText)];
+      }
+      return [key, value];
+    }),
+  );
+  const result = expectedSchema.parse(
+    frontMatterWithLinkTextNormalized,
+  ) as EntitySlice<T>;
   console.log("Parsed data:", result);
   return result;
 }
@@ -61,7 +95,10 @@ export function getSchemaOfEntityDefinition(
   const scalarFields = entityDefinition.fields.filter(
     (f) => f.type === "scalar",
   ) as Extract<FieldDefinition, { type: "scalar" }>[];
-  let zod_scalar_parser = z.object({});
+  const linkFields = entityDefinition.fields.filter(
+    (f) => f.type === "link",
+  ) as Extract<FieldDefinition, { type: "link" }>[];
+  let schema = z.object({});
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let zfield: z.ZodType<any, any, any>;
   scalarFields.forEach((field) => {
@@ -85,11 +122,20 @@ export function getSchemaOfEntityDefinition(
       zfield = zfield.describe(field.comment);
     }
 
-    zod_scalar_parser = zod_scalar_parser.extend({
+    schema = schema.extend({
       [field.name]: zfield,
     });
   });
-  return zod_scalar_parser;
+  linkFields.forEach((linkField) => {
+    let type = linkField.multi ? z.array(z.string()) : z.string();
+    if (linkField.comment) {
+      type = type.describe(linkField.comment);
+    }
+    schema = schema.extend({
+      [linkField.name]: type,
+    });
+  });
+  return schema;
 }
 
 export function getPrimaryKeySchemaOfEntityDefinition(

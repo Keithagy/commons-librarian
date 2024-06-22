@@ -77,7 +77,6 @@ async function main() {
     validEntityDefinitions,
   );
 
-  //Object.values(inputVault.files).forEach(async (incomingDocument) => {
   for (const incomingDocument of Object.values(inputVault.files)) {
     console.log(
       chalk.yellow(`Successfully read output vault: ${existingVault.path}`),
@@ -88,12 +87,16 @@ async function main() {
       ),
     );
 
-    const entityTypesMentionedInDoc = Object.values(
-      validEntityDefinitions,
-    ).filter(async (entityType) => {
-      // TODO: refactor to use Promise.all
-      return await determineIfEntityTypePresent(incomingDocument, entityType);
-    });
+    const entityTypesMentionedInDoc = [];
+    for (const entityType of Object.values(validEntityDefinitions)) {
+      const entityTypePresent = await determineIfEntityTypePresent(
+        incomingDocument,
+        entityType,
+      );
+      if (entityTypePresent) {
+        entityTypesMentionedInDoc.push(entityType);
+      }
+    }
 
     const mergedEntities: EntitySlice[] = [];
 

@@ -12,7 +12,7 @@ export function parseExistingGlobalGraphFromVault(
   existingVault: Vault,
   entityDefinitionsByName: Record<EntityInstanceType, EntityDefinition>,
 ): KnowledgeGraph {
-  const knowledgeGraph: KnowledgeGraph = new Set();
+  const knowledgeGraph: KnowledgeGraph = [];
 
   for (const file of Object.values(existingVault.files)) {
     const entityType: EntityInstanceType =
@@ -22,7 +22,7 @@ export function parseExistingGlobalGraphFromVault(
       entityDefinitionsByName,
     );
     const entity = parseEntity(file, entityDefinition);
-    knowledgeGraph.add(entity);
+    knowledgeGraph.push(entity);
   }
   return knowledgeGraph;
 }

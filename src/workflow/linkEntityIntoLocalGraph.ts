@@ -1,8 +1,6 @@
-import { NotImplementError } from "src/errors";
 import { EntitySlice, KnowledgeGraph } from "./types";
 import { llmCompletion } from "src/llm/completion";
 import { VaultPage } from "obsidian-vault-parser";
-import { boolean } from "yargs";
 import { z } from "zod";
 import { printNode, zodToTs } from "zod-to-ts";
 import { badany } from "src/helpers/utility-types";
@@ -20,25 +18,30 @@ export async function linkEntityIntoLocalGraph(
       return entity.definition.name === link.target;
     });
 
-    for (const opposite of opposites) {
+    for (const linkDst of opposites) {
       console.log(
-        `${incoming.definition.name} -[${link.name}]-> ${opposite.__type}`,
+        `${incoming.definition.name} -[${link.name}]-> ${linkDst.__type}`,
       );
 
-      if (opposite === incoming) {
+      if (linkDst === incoming) {
+        // if linking to self
         continue;
       }
 
       const aPK = incoming.getPrimaryKey();
-      const bPK = opposite.getPrimaryKey();
+      const bPK = linkDst.getPrimaryKey();
 
-      const vertict_key = `${aPK.value} has ${link.name}_${bPK.value}`
+      const vertict_key = `${aPK.value} has ${link.name}_${bPK.value}`;
 
       const zResponse = z.object({
-        reasoning: z.string().describe('reason about assertion makes sense and about relation direction'),
+        reasoning: z
+          .string()
+          .describe(
+            "reason about assertion makes sense and about relation direction",
+          ),
         confidence: z.enum(["no_brainer", "seems_alright", "hard_to_know"]),
         [vertict_key]: z.boolean(),
-        [`${bPK.value} has ${link.name}_${aPK.value}`]: z.boolean()
+        [`${bPK.value} has ${link.name}_${aPK.value}`]: z.boolean(),
       });
 
       const pkOnlySchemaSerialized = printNode(zodToTs(zResponse).node);
@@ -52,7 +55,7 @@ Given a text you give a response in JSON format on whether the following cypher-
 
 ## Query
 
-(a:${incoming.definition.name} {"${aPK.key}": "${aPK.value}"})-[${link.name}]->(b:${opposite.definition.name} {"${bPK.key}": "${bPK.value}"})
+(a:${incoming.definition.name} {"${aPK.key}": "${aPK.value}"})-[${link.name}]->(b:${linkDst.definition.name} {"${bPK.key}": "${bPK.value}"})
 
 Determine critically which relationship holds between the two entities.
 
@@ -76,10 +79,10 @@ ${pkOnlySchemaSerialized}
         JSON.parse(resp.choices[0].message.content!),
       );
 
-      if(valid_resp[vertict_key] === true) {
+      if (valid_resp[vertict_key] === true) {
         incoming[link.name] = {
           type: "link",
-          entity: opposite.__type,
+          entity: linkDst.__type,
           target_primary_keys: [bPK.value as badany],
         };
       }

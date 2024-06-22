@@ -22,7 +22,9 @@ export async function initializeEntitiesForType(
   });
   const pkOnlySchemaSerialized = printNode(zodToTs(primaryKeyOnlySchema).node);
   const systemPrompt = `
-List each unique ${entDef.name} given by the user by thair ${dummy_slice.getPrimaryKey().key}
+List each unique ${entDef.name} given by the user by their ${
+    dummy_slice.getPrimaryKey().key
+  }
 
 ## JSON Response Format
 

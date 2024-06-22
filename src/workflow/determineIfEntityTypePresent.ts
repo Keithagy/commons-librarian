@@ -3,11 +3,9 @@ import {
   EntityDefinition,
   getSchemaOfEntityDefinition,
 } from "../schema/entity";
-import { BadLLMResponse, NotImplementError } from "../errors";
+import { BadLLMResponse } from "../errors";
 import { VaultPage } from "obsidian-vault-parser";
 import { printNode, zodToTs } from "zod-to-ts";
-import { z } from "zod";
-import { FieldDefinition } from "src/schema/field";
 
 export async function determineIfEntityTypePresent(
   file: VaultPage,

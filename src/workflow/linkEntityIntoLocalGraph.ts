@@ -67,7 +67,12 @@ ${pkOnlySchemaSerialized}
           },
           {
             role: "user",
-            content: page.content!,
+            content: `# input text
+\`\`\`
+${page.content!}
+\`\`\`
+
+`,
           },
         ],
         response_format: {

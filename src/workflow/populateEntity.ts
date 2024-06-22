@@ -6,6 +6,8 @@ import { BadLLMResponse, EntityNotFoundError } from "../errors";
 import { FieldDefinition } from "../schema/field";
 import { llmCompletion } from "../llm/completion";
 import { getSchemaOfEntityDefinition } from "src/schema/entity";
+import { z } from "zod";
+import _ from "lodash";
 
 /**
  * returns a copy of `entityToPopulate` with populated fields
@@ -40,23 +42,25 @@ export async function populateEntity(
         role: "system",
         content: `
 
-Extract JSON metadata about ${entity.name} with:
-
-\`\`\`json
+You extract JSON metadata about a ${entity.name}.
+The ${entity.name} we are looking for has:
+\`\`\`
 ${JSON.stringify(pk_val, null, 2)}
 \`\`\`
 
-## metadata format / output JSON schema
+## Output JSON schema
 \`\`\`ts
 ${tsSchema}
 \`\`\`
 
-The user will provide the raw data from which to extract the metadata.
 `,
       },
       {
         role: "user",
-        content: file.content!,
+        content: `## input data
+\`\`\`
+${file.content}
+\`\`\``,
       },
     ],
     response_format: {
@@ -69,6 +73,14 @@ The user will provide the raw data from which to extract the metadata.
     throw new BadLLMResponse(rest.choices[0].finish_reason);
   }
   const response_json = JSON.parse(response_json_text);
-  const valid_json: any = schema.parse(response_json);
-  return Object.assign(einst, valid_json); // FIXME: remove pk from valid_json
+  const valid_json = z.array(schema).or(schema).parse(response_json);
+  const flattend = _.flatten([valid_json]);
+
+  const extracted = flattend.filter((e) => e[pk.key] === pk.value);
+
+  if(extracted.length === 0) {
+    throw new EntityNotFoundError(`Failed to populate ${entity.name} ${pk.value} `);
+  }
+
+  return Object.assign(einst, extracted[0]); // FIXME: remove pk from valid_json
 }

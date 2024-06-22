@@ -6,6 +6,7 @@ import {
 import { BadLLMResponse } from "../errors";
 import { VaultPage } from "obsidian-vault-parser";
 import { printNode, zodToTs } from "zod-to-ts";
+import { z } from "zod";
 
 export async function determineIfEntityTypePresent(
   file: VaultPage,
@@ -19,28 +20,45 @@ export async function determineIfEntityTypePresent(
 
   const schema = getSchemaOfEntityDefinition(entityDefinition);
   const tsSchema = printNode(zodToTs(schema).node);
+
+
+  const output_schema = z.object({
+    evidence: z.string().describe("short evidence that the entity is present"),
+    has_entity: z.boolean().optional().nullable().describe(`has ${entityDefinition.name}`),
+  });
+
+  const output_ts_schema = printNode(zodToTs(output_schema).node);
+
   console.log("schema", tsSchema);
   const rest = await llmCompletion({
     messages: [
       {
         role: "system",
         content: `
-Your role is to determine if the file content below describes at least one ${entityDefinition.name}, represented by the following schema:
+Your role is to determine if the file below describes at least one ${entityDefinition.name}.
+
+## entity description we are looking for:
 \`\`\`ts
 ${tsSchema}
 \`\`\`
 
-File content:
+## output json schema:
+
+\`\`\`ts
+${output_ts_schema}
+\`\`\``,
+      },
+      {
+        role: "user",
+        content: `file:
 \`\`\`
 ${file.content}
-\`\`\`
-
-You are to respond ONLY with one of the following values:
-- true if the file describes at least one instance of entity ${entityDefinition.name}, i.e the file content contains one or more of this entity
-- false if the file describes no such entity
-- null if unclear`,
-      },
+\`\`\``,
+      }
     ],
+    response_format: {
+      type: "json_object",
+    },
   });
 
   const response_json_text = rest.choices[0].message.content;
@@ -49,23 +67,6 @@ You are to respond ONLY with one of the following values:
   }
 
   const response: boolean | null = JSON.parse(response_json_text);
-
-  // TODO: this response indicates that the LLM was unsure; needs a retry mechanism
-  if (response === null) {
-    throw new BadLLMResponse(
-      `LLM could not determine if entity ${entityDefinition.name} was present in the file at ${file.path}`,
-    );
-  }
-  if (typeof response !== "boolean") {
-    throw new BadLLMResponse(
-      `LLM did not provide a valid (boolean) response when checking if entity ${entityDefinition.name} was present in the file at ${file.path}`,
-    );
-  }
-
-  console.info(
-    `Entity ${entityDefinition.name} ${
-      (response && "exists") || "does not exist"
-    } in document at ${file.path}`,
-  );
-  return response;
+  const has_entity = !!output_schema.parse(response).has_entity;
+  return has_entity;
 }

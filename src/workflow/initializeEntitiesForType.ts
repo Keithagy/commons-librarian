@@ -14,23 +14,19 @@ export async function initializeEntitiesForType(
   file: VaultPage,
   entDef: EntityDefinition,
 ): Promise<EntitySlice[]> {
-  // NOTE: in this step we are just filling out primary keys,
-  // though we leave this context out of our prompt to avoid overwhelming the (likely smaller) LLM.
-  const primaryKeyOnlySchema = getPrimaryKeySchemaOfEntityDefinition(entDef);
+  const dummy_slice = createEntitySlice(entDef, {});
+  const pk = dummy_slice.getPrimaryKey();
+
+  const primaryKeyOnlySchema = z.object({
+    occurrences: z.array(getPrimaryKeySchemaOfEntityDefinition(entDef)),
+  });
   const pkOnlySchemaSerialized = printNode(zodToTs(primaryKeyOnlySchema).node);
   const systemPrompt = `
-This is a schema definition for the entity ${entDef.name}:
-\`\`\`ts
-interface ${entDef.name} ${pkOnlySchemaSerialized}
+List each unique ${entDef.name} given by the user by thair ${dummy_slice.getPrimaryKey().key}
 
-type Response = ${entDef.name}[];
-\`\`\`
+## JSON Response Format
 
-List all instances of the entity ${entDef.name}.
-Extract the Respose JSON from the following file content:
-\`\`\`
-${file.content}
-\`\`\`
+${pkOnlySchemaSerialized}
 
 `;
   const llmResponse = await llmCompletion({
@@ -38,6 +34,16 @@ ${file.content}
       {
         role: "system",
         content: systemPrompt,
+      },
+      {
+        role: "user",
+        content: `# input text
+\`\`\`
+${file.content!}
+ \`\`\`
+
+Go ahead and list each unique ${entDef.name} in the text!
+`,
       },
     ],
     response_format: {
@@ -52,10 +58,7 @@ ${file.content}
   const response_json = JSON.parse(response_json_text);
 
   // giving LLM some leeway
-  const parseResult = z
-    .array(primaryKeyOnlySchema)
-    .or(primaryKeyOnlySchema)
-    .safeParse(response_json);
+  const parseResult = primaryKeyOnlySchema.safeParse(response_json);
 
   if (parseResult.error) {
     throw new BadLLMResponse(
@@ -68,6 +71,8 @@ ${pkOnlySchemaSerialized}`,
   }
 
   // TODO: review type-checking around this
-  const fields = _.flatten([parseResult.data]) as EntitySliceFields[];
+  const fields = _.flatten([
+    parseResult.data.occurrences,
+  ]) as EntitySliceFields[];
   return fields.map((f) => createEntitySlice(entDef, f));
 }

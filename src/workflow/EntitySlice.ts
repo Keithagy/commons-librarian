@@ -105,7 +105,7 @@ class EntityBase<T extends EntityDefinition> {
         throw new NotImplementError(`Field type not implemented`);
       }
     }
-
+    obj["__type"] = this._entity.name;
     return obj as EntityInstance<T>;
   }
 }

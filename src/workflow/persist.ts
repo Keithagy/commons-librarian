@@ -13,7 +13,6 @@ export async function persist(
       2,
     ),
   );
-  console.log("persist not implemented yet");
 
   for (const entity of newGlobalGraph) {
     const file = entity.asInstance();

@@ -5,6 +5,7 @@ import { VaultPage } from "obsidian-vault-parser";
 import { boolean } from "yargs";
 import { z } from "zod";
 import { printNode, zodToTs } from "zod-to-ts";
+import { badany } from "src/helpers/utility-types";
 
 export async function linkEntityIntoLocalGraph(
   incoming: EntitySlice,
@@ -14,35 +15,38 @@ export async function linkEntityIntoLocalGraph(
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `localGraph` in place
 
-  for(const link of incoming.getFields('link')) {
+  for (const link of incoming.getFields("link")) {
     const opposites = localGraph.filter((entity) => {
       return entity.definition.name === link.target;
-    })
+    });
 
-    for(const opposite of opposites) {
-      console.log(`${incoming.definition.name} -[${link.name}]-> ${opposite.__type}`);
+    for (const opposite of opposites) {
+      console.log(
+        `${incoming.definition.name} -[${link.name}]-> ${opposite.__type}`,
+      );
 
-      if ( opposite === incoming) {
+      if (opposite === incoming) {
         continue;
       }
 
-
-      const aPK =incoming.getPrimaryKey();
+      const aPK = incoming.getPrimaryKey();
       const bPK = opposite.getPrimaryKey();
 
       const zResponse = z.object({
         reasoning: z.string(),
         confidence: z.enum(["no_brainer", "seems_alright", "hard_to_know"]),
-        vertict: z.boolean().describe("true if the link is correct, false otherwise"),
-      })
+        vertict: z
+          .boolean()
+          .describe("true if the link is correct, false otherwise"),
+      });
 
       const pkOnlySchemaSerialized = printNode(zodToTs(zResponse).node);
 
-
-      await llmCompletion({
-        messages: [{
-          role: "system",
-          content: `
+      const resp = await llmCompletion({
+        messages: [
+          {
+            role: "system",
+            content: `
 Given a text you give vertict in JSON format on whether the following  cypher query would be correct or not.
 
 ## Query
@@ -53,19 +57,27 @@ Given a text you give vertict in JSON format on whether the following  cypher qu
 
 \`\`\`ts
 ${pkOnlySchemaSerialized}
-\`\`\``
-        }, {
-          role: "user",
-          content: page.content!,
-        }
-     
+\`\`\``,
+          },
+          {
+            role: "user",
+            content: page.content!,
+          },
         ],
         response_format: {
           type: "json_object",
         },
-      })
+      });
+
+      const valid_resp = zResponse.parse(
+        JSON.parse(resp.choices[0].message.content!),
+      );
+
+      incoming[link.name] = {
+        type: "link",
+        entity: opposite.__type,
+        target_primary_keys: [bPK.value as badany],
+      };
     }
-
   }
-
 }

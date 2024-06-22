@@ -1,14 +1,11 @@
 import { Vault } from "obsidian-vault-parser";
 import { KnowledgeGraph } from "./types";
 import { writeFileSync } from "fs";
-import { badany } from "src/helpers/utility-types";
 
 export async function persist(
   newGlobalGraph: KnowledgeGraph,
   ouputVault: Vault,
 ): Promise<void> {
-  // NOTE: this is just the commit step
-
   console.log(
     JSON.stringify(
       newGlobalGraph.map((n) => n.asInstance()),

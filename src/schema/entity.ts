@@ -91,12 +91,13 @@ export function parseEntity<T extends EntityDefinition>(
 }
 export function getSchemaOfEntityDefinition(
   entityDefinition: EntityDefinition,
+  fields: FieldDefinition[] = entityDefinition.fields,
 ): ReturnType<typeof z.object> {
 
 
   let zod_scalar_parser = z.object({});
 
-  for (const field of entityDefinition.fields) {
+  for (const field of fields) {
     let zfield: z.ZodType<any, any, any>;
     if (field.type === "scalar") {
       switch (field.value) {

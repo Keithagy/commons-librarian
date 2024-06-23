@@ -18,16 +18,16 @@ export async function populateEntity(
   file: VaultPage,
 ): Promise<EntitySlice> {
   const entity = einst.definition;
-  const scalarFields = einst
+  const basic_fields = einst
     .getFields("non-primary")
     .filter((f) => f.type === "scalar" || f.type === 'zod') as Extract<
     FieldDefinition,
     { type: "scalar" } | { type: "zod" }
   >[];
-  if (scalarFields.length <= 0) {
+  if (basic_fields.length <= 0) {
     return einst;
   }
-  const schema = getSchemaOfEntityDefinition(entity);
+  const schema = getSchemaOfEntityDefinition(entity, basic_fields);
 
   const tsSchema = printNode(zodToTs(schema).node);
 
@@ -79,7 +79,7 @@ Now give me the JSON metadata for this:
   const valid_json = z.array(schema).or(schema).parse(response_json);
   const flattend = _.flatten([valid_json]);
 
-  const extracted = flattend.filter((e) => e[pk.key] === pk.value);
+  const extracted = flattend.filter((e) => e[pk.key] === pk.value || e[pk.key] === undefined);
 
   if (extracted.length === 0) {
     throw new EntityNotFoundError(

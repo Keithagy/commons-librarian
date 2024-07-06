@@ -4,12 +4,12 @@ import {
   getSchemaOfEntityDefinition,
 } from "../schema/entity";
 import { BadLLMResponse } from "../errors";
-import { VaultPage } from "obsidian-vault-parser";
 import { printNode, zodToTs } from "zod-to-ts";
 import { z } from "zod";
+import { TextSnippet } from "./types";
 
 export async function determineIfEntityTypePresent(
-  file: VaultPage,
+  file: TextSnippet,
   entityDefinition: EntityDefinition,
 ): Promise<boolean> {
   const contents = file.content;

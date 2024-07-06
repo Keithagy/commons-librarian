@@ -3,15 +3,19 @@ import {
   EntityDefinition,
   getPrimaryKeySchemaOfEntityDefinition,
 } from "../schema/entity";
-import { VaultPage } from "obsidian-vault-parser";
-import { EntitySlice, EntitySliceFields, createEntitySlice } from "./types";
+import {
+  EntitySlice,
+  EntitySliceFields,
+  TextSnippet,
+  createEntitySlice,
+} from "./types";
 import { printNode, zodToTs } from "zod-to-ts";
 import { llmCompletion } from "src/llm/completion";
 import { z } from "zod";
 import _ from "lodash";
 
 export async function initializeEntitiesForType(
-  file: VaultPage,
+  file: TextSnippet,
   entDef: EntityDefinition,
 ): Promise<EntitySlice[]> {
   const dummy_slice = createEntitySlice(entDef, {});

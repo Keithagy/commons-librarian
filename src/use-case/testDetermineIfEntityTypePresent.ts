@@ -1,4 +1,4 @@
-import { VaultPage } from "obsidian-vault-parser";
+import { TextSnippet } from "src/workflow/types";
 import { personEntity } from "./1-dummy-schema";
 import { determineIfEntityTypePresent } from "src/workflow/determineIfEntityTypePresent";
 
@@ -7,20 +7,20 @@ import { determineIfEntityTypePresent } from "src/workflow/determineIfEntityType
     {
       content:
         "Mario Johns and Luigi Antetokunmpo are brothers, and they hail from the Nintendo universe.",
-    } as VaultPage,
+    } as TextSnippet,
     personEntity,
   );
   await determineIfEntityTypePresent(
     {
       content:
         "Mario and Luigi are brothers, and they hail from the Nintendo universe.",
-    } as VaultPage,
+    } as TextSnippet,
     personEntity,
   );
   await determineIfEntityTypePresent(
     {
       content: "The sun rises from the east every day.",
-    } as VaultPage,
+    } as TextSnippet,
     personEntity,
   );
 })();

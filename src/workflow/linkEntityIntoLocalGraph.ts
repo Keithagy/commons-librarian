@@ -1,6 +1,5 @@
-import { EntitySlice, KnowledgeGraph } from "./types";
+import { EntitySlice, KnowledgeGraph, TextSnippet } from "./types";
 import { llmCompletion } from "src/llm/completion";
-import { VaultPage } from "obsidian-vault-parser";
 import { z } from "zod";
 import { printNode, zodToTs } from "zod-to-ts";
 import { badany } from "src/helpers/utility-types";
@@ -8,7 +7,7 @@ import { badany } from "src/helpers/utility-types";
 export async function linkEntityIntoLocalGraph(
   incoming: EntitySlice,
   localGraph: KnowledgeGraph,
-  page: VaultPage,
+  page: TextSnippet,
 ): Promise<void> {
   // TODO: How to decide the links that a new node should have to any/all existing nodes?
   // NOTE: modifies `localGraph` in place
@@ -19,7 +18,6 @@ export async function linkEntityIntoLocalGraph(
     });
 
     for (const linkDst of opposites) {
-
       if (linkDst === incoming) {
         // if linking to self
         continue;
@@ -34,7 +32,7 @@ export async function linkEntityIntoLocalGraph(
         reasoning: z
           .string()
           .describe(
-            "reason about assertion makes sense and about relation direction",
+            "reason about if the above  assertion makes sense and about relation direction",
           ),
         confidence: z.enum(["no_brainer", "seems_alright", "hard_to_know"]),
         [vertict_key]: z.boolean(),
@@ -84,9 +82,8 @@ ${page.content!}
       if (valid_resp[vertict_key] === true) {
         incoming[link.name] = [bPK.value as badany];
         console.log(`setting ${aPK.value} has ${link.name} ${bPK.value}`);
-        
       } else {
-        console.log('not setting link')
+        console.log("not setting link");
       }
     }
   }

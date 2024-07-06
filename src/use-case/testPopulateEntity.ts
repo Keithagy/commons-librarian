@@ -1,7 +1,12 @@
 import { populateEntity } from "../workflow/populateEntity";
-import { Vault, VaultPage } from "obsidian-vault-parser";
+import { Vault } from "obsidian-vault-parser";
 import { personEntity } from "./1-dummy-schema";
-import { Context, EntitySlice, createEntitySlice } from "../workflow/types";
+import {
+  Context,
+  EntitySlice,
+  TextSnippet,
+  createEntitySlice,
+} from "../workflow/types";
 
 (async () => {
   const ctx = {
@@ -17,7 +22,7 @@ import { Context, EntitySlice, createEntitySlice } from "../workflow/types";
     full_name: "John Doe",
   });
 
-  await populateEntity(ctx, personInstance, {
+  await populateEntity(personInstance, {
     content: "John Doe, age 33 is the father of Tim Cook, age 66",
-  } as VaultPage);
+  } as TextSnippet);
 })();

@@ -19,6 +19,7 @@ export const personEntity = {
       name: "parent",
       target: "Person",
       multi: false,
+      comment: "... is  parent of ...",
     },
   ],
   constraints: [
@@ -29,9 +30,6 @@ export const personEntity = {
   ],
 } satisfies EntityDefinition;
 
-
-const schema = [
-    personEntity
-]
+const schema = [personEntity];
 
 export default schema;

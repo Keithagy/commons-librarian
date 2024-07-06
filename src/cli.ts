@@ -3,16 +3,12 @@ import { readVault } from "obsidian-vault-parser";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
 import { EntityDefinition, EntityInstanceType } from "./schema/entity";
-import { Context, EntitySlice, KnowledgeGraph } from "./workflow/types";
-import { determineIfEntityTypePresent } from "./workflow/determineIfEntityTypePresent";
-import { initializeEntitiesForType } from "./workflow/initializeEntitiesForType";
-import { linkEntityIntoLocalGraph } from "./workflow/linkEntityIntoLocalGraph";
-import { mergeEntity } from "./workflow/mergeEntity";
+import { Context, TextSnippet, zTextSnippet } from "./workflow/types";
 import { mergeLocalGraphIntoGlobalGraph } from "./workflow/mergeLocalGraphIntoGlobalGraph";
-import { parseExistingGlobalGraphFromVault } from "./workflow/parseExistingGlobalGraphFromVault";
-import { persist } from "./workflow/persist";
-import { populateEntity } from "./workflow/populateEntity";
-import { retrieveEntity } from "./workflow/retrieveEntity";
+
+import { parseExistingGlobalGraphFromVault } from "./obsidian/parseExistingGlobalGraphFromVault";
+import { persist } from "./obsidian/persist";
+import { performEntityParsing } from "./workflow";
 
 /*
  * Provides a CLI which handles the ingestion of some target obsidian vault.
@@ -33,8 +29,7 @@ async function main() {
       alias: "s",
       type: "string",
       description: "entity schema file path",
-    })
-    .argv;
+    }).argv;
 
   const inputVaultFilePath = argv.input;
   if (!inputVaultFilePath) {
@@ -67,10 +62,15 @@ async function main() {
   }
 
   // TODO: userCasePerson shouldn't be directly imported! this should be parameterized
-  const validEntityDefinitions = {} as Record<EntityInstanceType, EntityDefinition>;
+  const validEntityDefinitions = {} as Record<
+    EntityInstanceType,
+    EntityDefinition
+  >;
 
   {
-    const entity_list: EntityDefinition[] = (await import(argv["schema"] as string)).default;
+    const entity_list: EntityDefinition[] = (
+      await import(argv["schema"] as string)
+    ).default;
     for (const entity of entity_list) {
       validEntityDefinitions[entity.name] = entity;
     }
@@ -87,60 +87,28 @@ async function main() {
     validEntityDefinitions,
   );
 
+  console.log(
+    chalk.yellow(`Successfully read output vault: ${existingVault.path}`),
+  );
+  console.log(
+    chalk.yellow(
+      `Vault size: ${Object.keys(existingVault.files).length} files`,
+    ),
+  );
+
   for (const incomingDocument of Object.values(inputVault.files)) {
-    console.log(
-      chalk.yellow(`Successfully read output vault: ${existingVault.path}`),
+    if (!incomingDocument.content) {
+      continue;
+    }
+    const snip = zTextSnippet.parse({
+      type: "zTextSnippet",
+      content: incomingDocument.content,
+    } satisfies TextSnippet);
+    const localGraph = await performEntityParsing(
+      Object.values(validEntityDefinitions),
+      snip,
+      existingGlobalGraph,
     );
-    console.log(
-      chalk.yellow(
-        `Vault size: ${Object.keys(existingVault.files).length} files`,
-      ),
-    );
-
-    const entityTypesMentionedInDoc = [];
-    for (const entityType of Object.values(validEntityDefinitions)) {
-      const entityTypePresent = await determineIfEntityTypePresent(
-        incomingDocument,
-        entityType,
-      );
-      if (entityTypePresent) {
-        entityTypesMentionedInDoc.push(entityType);
-      }
-    }
-
-    const mergedEntities: EntitySlice[] = [];
-
-    for (const entityType of entityTypesMentionedInDoc) {
-      const initializedEntities = await initializeEntitiesForType(
-        incomingDocument,
-        entityType,
-      );
-
-      for (const initialized of initializedEntities) {
-        const populated = await populateEntity(
-          ctx,
-          initialized,
-          incomingDocument,
-        );
-
-        const maybeExistingEntity = await retrieveEntity(
-          populated,
-          existingGlobalGraph,
-        );
-
-        const mergedEntity =
-          maybeExistingEntity === null
-            ? populated
-            : await mergeEntity(populated, maybeExistingEntity);
-
-        mergedEntities.push(mergedEntity);
-      }
-    }
-
-    const localGraph: KnowledgeGraph = [...mergedEntities];
-    for (const entity of mergedEntities) {
-      await linkEntityIntoLocalGraph(entity, localGraph, incomingDocument);
-    }
 
     const newGlobalGraph = await mergeLocalGraphIntoGlobalGraph(
       localGraph,

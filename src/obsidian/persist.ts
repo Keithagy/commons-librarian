@@ -1,6 +1,6 @@
 import { Vault } from "obsidian-vault-parser";
-import { KnowledgeGraph } from "./types";
 import { writeFileSync } from "fs";
+import { KnowledgeGraph } from "src/workflow/types";
 
 export async function persist(
   newGlobalGraph: KnowledgeGraph,

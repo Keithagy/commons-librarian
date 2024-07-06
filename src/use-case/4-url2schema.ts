@@ -1,5 +1,13 @@
 import { z } from "zod";
 import { EntityDefinition } from "../schema/entity";
+import { Librarian } from "src/librarian";
+import { DirectedGraph } from "graphology";
+import { log } from "console";
+import {
+  MDFindEntityOccurenceRecipe,
+  RecipeRawUrl,
+  Url2MDRecipe,
+} from "src/recipes-web";
 
 export const personEntity = {
   type: "entity",
@@ -53,4 +61,27 @@ export const locationEntity = {
 } satisfies EntityDefinition;
 const schema = [personEntity, locationEntity];
 
-export default schema;
+(async () => {
+  const graph = new DirectedGraph();
+
+  graph.on("nodeAdded", async (n) => {
+    console.log(`add ${n.key}`, n.attributes);
+  });
+
+  graph.on("edgeAdded", async (e) => {
+    console.log(
+      `lnk [${e.source} -[${e.attributes.kind ?? "-"}]-> ${e.target}]`,
+    );
+  });
+
+  const librarian = new Librarian("david", graph, [
+    new RecipeRawUrl(),
+    new Url2MDRecipe(),
+    new MDFindEntityOccurenceRecipe([personEntity, locationEntity], []),
+  ]);
+
+  await librarian.presentBlob(`
+  https://www.russelldavies.com/
+
+`);
+})();

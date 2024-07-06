@@ -93,8 +93,6 @@ export function getSchemaOfEntityDefinition(
   entityDefinition: EntityDefinition,
   fields: FieldDefinition[] = entityDefinition.fields,
 ): ReturnType<typeof z.object> {
-
-
   let zod_scalar_parser = z.object({});
 
   for (const field of fields) {
@@ -111,9 +109,7 @@ export function getSchemaOfEntityDefinition(
           zfield = z.boolean();
           break;
         default:
-          throw new NotImplementError(
-            `Field value not implemented`,
-          );
+          throw new NotImplementError(`Field value not implemented`);
       }
 
       if (field.comment) {
@@ -128,7 +124,9 @@ export function getSchemaOfEntityDefinition(
         [field.name]: field.value,
       });
     } else if (field.type === "link") {
-      let type = field.multi ? z.array(z.string()) : z.string().transform((v) => [v]);
+      let type = field.multi
+        ? z.array(z.string())
+        : z.string().transform((v) => [v]);
       if (field.comment) {
         type = type.describe(field.comment);
       }
@@ -161,7 +159,7 @@ export function getPrimaryKeySchemaOfEntityDefinition(
         `This entity definition specifies ${pkFieldName} as primary key, but it is not a scalar field`,
       );
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     let zField: z.ZodType<any, any, any>;
     switch (pkField.value) {
       case "string":
@@ -174,9 +172,7 @@ export function getPrimaryKeySchemaOfEntityDefinition(
         zField = z.boolean();
         break;
       default:
-        throw new NotImplementError(
-          `Field type not implemented`,
-        );
+        throw new NotImplementError(`Field type not implemented`);
     }
     schema = schema.extend({ [pkField.name]: zField });
   }

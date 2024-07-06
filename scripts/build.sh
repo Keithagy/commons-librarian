@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 
-esbuild "$@" --bundle  --loader:.ts=ts --platform=node "--external:@babel/preset-typescript/*" --external:node-pty --outfile=build/target.cjs --sourcemap
+
+if [ "$#" -eq 0 ]; then
+  echo "missing build target..."
+  exit 1
+fi
+
+yarn -s esbuild "$@" --bundle  --loader:.ts=ts --platform=node "--external:jsdom" --external:node-pty --outfile=build/target.cjs --sourcemap
 

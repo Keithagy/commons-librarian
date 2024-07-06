@@ -33,7 +33,11 @@ export const zFieldObject = zFieldBase.extend({
   value: z.any(),
 });
 
-export const zFieldDefinition = z.union([zFieldLink, zFieldScalar, zFieldObject]);
+export const zFieldDefinition = z.union([
+  zFieldLink,
+  zFieldScalar,
+  zFieldObject,
+]);
 export type FieldDefinition = z.infer<typeof zFieldDefinition>;
 
 // @eslint-ignore-next-statement

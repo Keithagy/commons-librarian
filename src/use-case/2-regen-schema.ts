@@ -14,7 +14,7 @@ export const personEntity = {
       name: "age",
       type: "scalar",
       value: "number",
-      comment: "This person's age in years."
+      comment: "This person's age in years.",
     },
     {
       type: "link",
@@ -24,9 +24,9 @@ export const personEntity = {
     },
     {
       type: "zod",
-      name: 'urls',
+      name: "urls",
       value: z.array(z.string()),
-    }
+    },
   ],
   constraints: [
     {
@@ -36,8 +36,6 @@ export const personEntity = {
   ],
 } satisfies EntityDefinition;
 
-const schema = [
-  personEntity
-]
+const schema = [personEntity];
 
 export default schema;

@@ -23,6 +23,4 @@ for arg in "$@"; do
     fi
 done
 
-set -x
-
-yarn -s run build "$target"; node "${params1[@]}" build/target.cjs ${params2[@]}
+yarn -s run build "$target" && node "${params1[@]}" build/target.cjs ${params2[@]}

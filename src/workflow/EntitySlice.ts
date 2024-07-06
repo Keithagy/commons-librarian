@@ -1,8 +1,6 @@
 import { InvalidEntityDefinition, NotImplementError } from "src/errors";
 import { EntityDefinition, EntityInstance } from "src/schema/entity";
 import type { IsAny } from "../helpers/utility-types";
-import { FieldDefinition } from "src/schema/field";
-
 type GetFieldsOptions = "non-primary" | "primary" | "all" | "link";
 
 export type EntitySliceFields<T extends EntityDefinition = any> = Partial<
@@ -41,7 +39,7 @@ class EntityBase<T extends EntityDefinition> {
     ? Extract<TD<T>["fields"][number], { type: "scalar" }>[]
     : never;
 
-  getFields<F extends GetFieldsOptions>(filter_by: F): any {
+  getFields<F extends GetFieldsOptions>(filter_by: F) {
     if (filter_by === "all") {
       return this._entity.fields;
     } else if (["primary", "non-primary"].includes(filter_by)) {

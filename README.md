@@ -16,6 +16,7 @@ Point yarn dev to the right `.ts`-file:
 yarn run dev src/use-case-1/testPopulateEntity.ts --inspect-brk
 
 rm vault/out/*; yarn run dev src/cli.ts --- -i vault/pile -o vault/out -s ../dist/use-case/1-dummy-schema.js
+yarn run dev src/use-case/4-hd-schema.ts
 rm vault/out/*; yarn run dev src/cli.ts --- -i vault/pile2 -o vault/out -s ../dist/use-case/2-regen-schema.js
 
 yarn run dev src/cli.ts --inspect-brk --- -i vault/pile -o vault/out

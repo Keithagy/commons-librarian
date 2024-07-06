@@ -4,11 +4,11 @@
       {
         "type": "node",
         "request": "attach",
-        "name": "Attach to WSL",
+        "name": "Attach",
         "address": "localhost",
         "port": 9229,
         "localRoot": "${workspaceFolder}",
-        "remoteRoot": "/mnt/c/Users/rohme/code/commons-librarian/commons-librarian",
+        "remoteRoot": "${workspaceFolder}",
         "protocol": "inspector"
       }
     ]

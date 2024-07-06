@@ -1,3 +1,5 @@
+const { rules } = require("eslint-plugin-prettier");
+
 module.exports = {
   settings: {},
   env: {
@@ -27,6 +29,8 @@ module.exports = {
   },
   plugins: ["@typescript-eslint", "prettier"],
   rules: {
+     "@typescript-eslint/no-explicit-any": "off",
+     "@typescript-eslint/no-unused-vars": "warn",
     "prettier/prettier": [
       "error",
       {
